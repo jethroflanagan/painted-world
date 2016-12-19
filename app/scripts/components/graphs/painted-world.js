@@ -192,6 +192,10 @@ const PaintedWorld = Vue.component('painted-world', {
                 var node = {};
                 node.name = name;
                 node.size = group.total;
+                node.offset = {
+                    angle: Math.random() * Math.PI * 2,
+                    radius: Math.random() * PADDING / 2,
+                };
                 return node;
             }),
         };
@@ -215,14 +219,14 @@ const PaintedWorld = Vue.component('painted-world', {
 
         // offset the circle within padded area for more randomness
         var getPosition = function (d, axis) {
-            var angle = Math.random() * Math.PI * 2;
-            var trig = Math.cos;
+            var trig = Math.sin;
             if (axis === 'x')
-                trig = Math.sin;
-            return d[axis] + Math.random() * PADDING / 2 * trig(angle);
+                trig = Math.cos;
+            return d[axis] + PADDING* 0.4 * trig(d.offset.angle);
         }
 
         console.log(nodes);
+
         svg.selectAll('.group')
             .data(nodes)
             .enter()
@@ -231,10 +235,12 @@ const PaintedWorld = Vue.component('painted-world', {
                 //     return 'translate(' + d.x + 'px ' + d.y + 'px)';
                 // })
                 .attr({
-                    cx: function (d) {
-                        return getPosition(d, 'x');
+                    cx: function (d, i) {
+                        return getPosition(d,'x');
                     },
-                    cy: function (d) { return getPosition(d, 'y') },
+                    cy: function (d, i) {
+                        return getPosition(d, 'y')
+                    },
                     r: function (d) { return d.r },
                     fill: function (d, i) {
                         return getColor(i);
