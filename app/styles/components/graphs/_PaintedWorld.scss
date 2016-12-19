@@ -1,0 +1,38 @@
+.ProjectionGraph {
+    position: relative;
+
+    // background: $colorPrimary;
+    &-line {
+        fill: none;
+        stroke: #fff;
+        stroke-width: 2px;
+    }
+    &-trendLine {
+        stroke: rgba(255, 255, 255, 0.5);
+        stroke-dasharray: 4px;
+        stroke-width: 2px;
+    }
+    &-fill {
+        fill: rgba(255, 255, 255, 0.3);
+        &Projection {
+            fill: rgba(255, 255, 255, 0.1);
+        }
+    }
+    &-axis {
+        fill: none;
+        stroke: rgba(255, 255, 255, 0.3);
+        stroke-width: 1px;
+    }
+    &-label {
+        position: absolute;
+        bottom: 10px;
+        font-size: 0.9em;
+        color: #fff;
+        &--left {
+            left: 20px;
+        }
+        &--right {
+            right: 20px;
+        }
+    }
+}
