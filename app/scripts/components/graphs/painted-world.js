@@ -137,6 +137,9 @@ function organiseCategories (aggregate, isLimited) {
     return groups;
 }
 
+
+
+// Fisher-Yates https://www.frankmitchell.org/2015/01/fisher-yates/
 function shuffle (array) {
     var i = 0
     var j = 0
@@ -167,6 +170,24 @@ const PaintedWorld = Vue.component('painted-world', {
         };
     },
     methods: {
+        render: function () {
+            var canvas = this.canvas;
+            var width = this.width;
+            var height = this.height
+            var nodes = this.nodes;
+
+            canvas.clearRect(0, 0, width, height);
+            canvas.beginPath();
+            var i = -1;
+            while (++i < nodes.length) {
+                var d = nodes[i];
+                var cx = d.x;
+                var cy = d.y;
+                canvas.moveTo(cx, cy);
+                canvas.arc(cx, cy, d.r, 0, Math.PI * 2);
+            }
+            canvas.fill();
+        }
     },
     mounted: function () {
         // var data = this.data;
@@ -180,12 +201,21 @@ const PaintedWorld = Vue.component('painted-world', {
         var width = document.documentElement.clientWidth - margin.left - margin.right;
         var height = 500 - margin.top - margin.bottom;
 
-        var svg = d3.select('.painted-world')
-            .append('svg')
-                .attr('width', width + margin.left + margin.right)
-                .attr('height', height + margin.top + margin.bottom)
-            .append('g')
-                .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+        var dom = d3.select('.painted-world')
+            .append('canvas')
+                .attr({
+                    width: width - margin.left - margin.right,
+                    height: height - margin.top - margin.bottom,
+                })
+                .style({
+                    'transform': 'translate(' + margin.left + ',' + margin.top + ')'
+                })
+                .node().getContext('2d');
+            // .append('dom')
+            //     .attr('width', width + margin.left + margin.right)
+            //     .attr('height', height + margin.top + margin.bottom)
+            // .append('g')
+            //     .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
         var data = {
             name : 'root',
             children : _.map(groups, function(group, name, i) {
@@ -227,26 +257,33 @@ const PaintedWorld = Vue.component('painted-world', {
 
         console.log(nodes);
 
-        svg.selectAll('.group')
-            .data(nodes)
-            .enter()
-                .append('circle')
-                // .style('transform', function (d) {
-                //     return 'translate(' + d.x + 'px ' + d.y + 'px)';
-                // })
-                .attr({
-                    cx: function (d, i) {
-                        return getPosition(d,'x');
-                    },
-                    cy: function (d, i) {
-                        return getPosition(d, 'y')
-                    },
-                    r: function (d) { return d.r },
-                    fill: function (d, i) {
-                        return getColor(i);
-                    },
-                })
+        // dom.selectAll('.group')
+        //     .data(nodes)
+        //     .enter()
+        //         .append('circle')
+        //         // .style('transform', function (d) {
+        //         //     return 'translate(' + d.x + 'px ' + d.y + 'px)';
+        //         // })
+        //         .attr({
+        //             cx: function (d, i) {
+        //                 return getPosition(d,'x');
+        //             },
+        //             cy: function (d, i) {
+        //                 return getPosition(d, 'y')
+        //             },
+        //             r: function (d) { return d.r },
+        //             fill: function (d, i) {
+        //                 return getColor(i);
+        //             },
+        //         })
 
+        this.width = width;
+        this.height = height;
+        this.canvas = dom;
+        this.nodes = nodes;
+
+
+        this.render();
 
     },
 });
