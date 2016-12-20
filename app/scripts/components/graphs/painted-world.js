@@ -1,5 +1,6 @@
 // import { colors } from './../../config';
 import { aggregateService } from '../../service/aggregate-service';
+import { Painter } from './painter';
 
 const generateUUID = () => {
     var d = new Date().getTime();
@@ -165,13 +166,14 @@ const PaintedWorld = Vue.component('painted-world', {
     data() {
         return {
             graphId: generateUUID(),
-            canvas: null,
-            offscreen: null,
+            ctx: null,
+            offscreenCtx: null,
             images: {
                 paintMasks: [],
                 invertedPaintMasks: [],
                 backgrounds: [],
             },
+            painter: null,
         };
     },
     methods: {
@@ -186,63 +188,57 @@ const PaintedWorld = Vue.component('painted-world', {
             return deferred.promise;
         },
         paint: function () {
-            var canvas = this.canvas;
+            console.log('paint');
+            var ctx = this.ctx;
             var width = this.width;
             var height = this.height
             var nodes = this.nodes;
 
-            canvas.clearRect(0, 0, width, height);
-            // canvas.beginPath();
-            var paintMasks = this.images.paintMasks;
-            var backgroundImages = this.images.backgrounds;
+            ctx.clearRect(0, 0, width, height);
             var i = 0;
-            canvas.save();
 
             for (i = 0; i < nodes.length; i++) {
                 var d = nodes[i];
-                var cx = d.x;
-                var cy = d.y;
-                var paintMask = paintMasks[0];
-                // canvas.moveTo(cx, cy);
-                // canvas.arc(cx, cy, d.r, 0, Math.PI * 2);
-                var radius = d.r;
-                var diameter = radius * 2;
-                canvas.drawImage(paintMask, cx - radius, cy - radius, diameter, diameter);
-
+                this.painter.paint(
+                    {
+                        cx: d.x,
+                        cy: d.y,
+                        radius: d.r,
+                        color: this.images.backgrounds[0],
+                    }
+                );
 
             }
-            // canvas.fill();
-            canvas.restore();
+            // ctx.fill();
 
-            // canvas.save();
-            canvas.globalCompositeOperation = 'source-atop';
-            canvas.drawImage(backgroundImages[0], 0, 0, width, height);
-            canvas.globalCompositeOperation = 'source-over';
-            // canvas.restore();
-
-            canvas.shadowColor = 'rgba(0,0,0,0.6)';
-            canvas.shadowBlur = 15
-            canvas.shadowOffsetX = 0;
-            canvas.shadowOffsetY = 0;
-            canvas.globalCompositeOperation = 'source-atop';
-
-            for (i = 0; i < nodes.length; i++) {
-                var d = nodes[i];
-                var cx = d.x;
-                var cy = d.y;
-                var paintMask = this.images.invertedPaintMasks[0];
-                // canvas.moveTo(cx, cy);
-                // canvas.arc(cx, cy, d.r, 0, Math.PI * 2);
-                var radius = d.r;
-                var diameter = radius * 2;
-                canvas.drawImage(paintMask, cx - radius, cy - radius, diameter, diameter);
-            }
-            canvas.restore();
+            // ctx.save();
+            // ctx.globalCompositeOperation = 'source-atop';
+            // ctx.drawImage(backgroundImages[0], 0, 0, width, height);
+            // ctx.globalCompositeOperation = 'source-over';
+            // // ctx.restore();
+            //
+            // ctx.shadowColor = 'rgba(0,0,0,0.6)';
+            // ctx.shadowBlur = 15
+            // ctx.shadowOffsetX = 0;
+            // ctx.shadowOffsetY = 0;
+            // ctx.globalCompositeOperation = 'source-atop';
+            //
+            // for (i = 0; i < nodes.length; i++) {
+            //     var d = nodes[i];
+            //     var cx = d.x;
+            //     var cy = d.y;
+            //     var paintMask = this.images.invertedPaintMasks[0];
+            //     // ctx.moveTo(cx, cy);
+            //     // ctx.arc(cx, cy, d.r, 0, Math.PI * 2);
+            //     var radius = d.r;
+            //     var diameter = radius * 2;
+            //     ctx.drawImage(paintMask, cx - radius, cy - radius, diameter, diameter);
+            // }
+            // ctx.restore();
         },
 
         setup: function () {
             var PADDING = 30;
-
             var groups = organiseCategories(aggregateService.data);
 
             var target = this.target;
@@ -260,7 +256,7 @@ const PaintedWorld = Vue.component('painted-world', {
                         'transform': 'translate(' + margin.left + ',' + margin.top + ')'
                     })
                     .node().getContext('2d');
-            var offscreen = d3.select('.painted-world')
+            var offscreenCtx = d3.select('.painted-world')
                 .append('canvas')
                     .attr({
                         width: width - margin.left - margin.right,
@@ -342,25 +338,19 @@ const PaintedWorld = Vue.component('painted-world', {
 
             this.width = width;
             this.height = height;
-            this.canvas = dom;
-            this.offscreen = offscreen;
+            this.ctx = dom;
+            this.offscreenCtx = offscreenCtx;
             this.nodes = nodes;
+
+            this.painter = new Painter({
+                outputCtx: dom,
+                ctx: offscreenCtx,
+                width: width,
+                height: height,
+                brushMasks: this.images.paintMasks,
+            });
         },
 
-        getInverted: function (img) {
-            var offscreen = this.offscreen;
-            // offscreen.clearRect(0, 0, this.width, this.height);
-            offscreen.save();
-            offscreen.fillRect(0, 0, this.width, this.height);
-            offscreen.globalCompositeOperation = 'destination-out';
-            offscreen.drawImage(img, 0, 0, this.width - 40, this.height-40);
-            // var inverted = offscreen.getImageData(0, 0, this.width, this.height);
-            var imgEl = document.createElement("img");
-            imgEl.src = offscreen.canvas.toDataURL("image/png");
-            // inverted = offscreen.toDataURL('image/png');
-            offscreen.restore();
-            return imgEl;
-        },
 
         loadAll: function () {
             var _this = this;
@@ -373,11 +363,15 @@ const PaintedWorld = Vue.component('painted-world', {
                     _this.images.backgrounds.push(background1);
                     _this.images.paintMasks.push(mask1);
                     // _this.getInverted(mask1)
-                    var invertedPaintMask = _this.getInverted(mask1);
-                    _this.images.invertedPaintMasks.push(invertedPaintMask);
+                    // var invertedPaintMask = _this.getInverted(mask1);
+                    // _this.images.invertedPaintMasks.push(invertedPaintMask);
                     return true;
                 })
-                .then(this.paint);
+                .then(this.setup)
+                .then(this.paint)
+                .catch(function (e) {
+                    console.error(e);
+                });
 
             return promise;
         },
@@ -386,7 +380,6 @@ const PaintedWorld = Vue.component('painted-world', {
         // var data = this.data;
         // console.log(data);
 
-        this.setup();
         this.loadAll();
     },
 });
