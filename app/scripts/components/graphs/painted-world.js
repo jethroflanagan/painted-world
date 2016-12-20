@@ -131,6 +131,11 @@ function organiseCategories (aggregate, isLimited) {
         };
     });
 
+    groups = _.filter(groups, function (group) {
+        return group.total > 1;
+    });
+
+
     _.map(groups, function (group, name) {
         groups[name].percent = Math.round(groups[name].total / allGroupsTotal * 100);
     });
@@ -188,7 +193,6 @@ const PaintedWorld = Vue.component('painted-world', {
             return deferred.promise;
         },
         paint: function () {
-            console.log('paint');
             var ctx = this.ctx;
             var width = this.width;
             var height = this.height
@@ -207,7 +211,7 @@ const PaintedWorld = Vue.component('painted-world', {
                         color: this.images.backgrounds[0],
                     }
                 );
-
+                console.log('loading', Math.floor((i + 1) / nodes.length  * 100));
             }
             // ctx.fill();
 
@@ -243,8 +247,8 @@ const PaintedWorld = Vue.component('painted-world', {
 
             var target = this.target;
             var margin = {top: 20, right: 20, bottom: 20, left: 20};
-            var width = document.documentElement.clientWidth - margin.left - margin.right;
-            var height = 800 - margin.top - margin.bottom;
+            var width = 700 - margin.left - margin.right;//document.documentElement.clientWidth - margin.left - margin.right;
+            var height = 700 - margin.top - margin.bottom;
 
             var dom = d3.select('.painted-world')
                 .append('canvas')
@@ -264,7 +268,10 @@ const PaintedWorld = Vue.component('painted-world', {
                     })
                     .style({
                         'transform': 'translate(' + margin.left + ',' + margin.top + ')',
-                        display: 'none',
+                        opacity: 0.4,
+                        position: 'absolute',
+                        top: 0,
+                        // left: 200,
                     })
                     .node().getContext('2d');
                 // .append('dom')
@@ -272,6 +279,7 @@ const PaintedWorld = Vue.component('painted-world', {
                 //     .attr('height', height + margin.top + margin.bottom)
                 // .append('g')
                 //     .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
             var data = {
                 name : 'root',
                 children : _.map(groups, function(group, name, i) {
