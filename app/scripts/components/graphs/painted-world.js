@@ -177,6 +177,7 @@ const PaintedWorld = Vue.component('painted-world', {
                 paintMasks: [],
                 invertedPaintMasks: [],
                 backgrounds: [],
+                canvasses: [],
             },
             painter: null,
         };
@@ -239,6 +240,26 @@ const PaintedWorld = Vue.component('painted-world', {
             //     ctx.drawImage(paintMask, cx - radius, cy - radius, diameter, diameter);
             // }
             // ctx.restore();
+
+            ctx.save();
+            ctx.globalCompositeOperation = 'multiply';
+            ctx.drawImage(this.images.canvasses[0], 0, 0, this.width, this.height);
+
+            this.speckleCanvas();
+        },
+
+        speckleCanvas: function () {
+            for (var i = 0; i < 36; i++) {
+                this.painter.paint(
+                    {
+                        cx: Math.random() * this.width,
+                        cy: Math.random() * this.height,
+                        radius: Math.random() * 3 + 1,
+                        color: this.images.backgrounds[1],
+                    }
+                );
+                // console.log('loading', Math.floor((i + 1) / nodes.length  * 100));
+            }
         },
 
         setup: function () {
@@ -271,6 +292,7 @@ const PaintedWorld = Vue.component('painted-world', {
                         opacity: 0.4,
                         position: 'absolute',
                         top: 0,
+                        border: '1px solid #000',
                         // left: 200,
                     })
                     .node().getContext('2d');
@@ -363,13 +385,35 @@ const PaintedWorld = Vue.component('painted-world', {
         loadAll: function () {
             var _this = this;
             var promise = Q.all([
+                this.loadImage('canvas.jpg'),
                 this.loadImage('background1.jpg'),
-                this.loadImage('mask1.png'),
+                this.loadImage('background-splatter.png'),
+                this.loadImage('brushes/outline01.png'),
+                this.loadImage('brushes/outline02.png'),
+                this.loadImage('brushes/outline03.png'),
+                this.loadImage('brushes/outline04.png'),
+                this.loadImage('brushes/outline05.png'),
+                this.loadImage('brushes/outline06.png'),
+                this.loadImage('brushes/outline07.png'),
+                this.loadImage('brushes/outline08.png'),
+                this.loadImage('brushes/outline09.png'),
+                this.loadImage('brushes/outline10.png'),
+                this.loadImage('brushes/outline11.png'),
+                this.loadImage('brushes/outline12.png'),
+                this.loadImage('brushes/outline13.png'),
+                this.loadImage('brushes/outline14.png'),
+                this.loadImage('brushes/outline15.png'),
+                this.loadImage('brushes/outline16.png'),
             ])
-                .spread(function (background1, mask1) {
-                    console.log('done', background1, mask1);
-                    _this.images.backgrounds.push(background1);
-                    _this.images.paintMasks.push(mask1);
+                .then(function (images) {
+                    // console.log('done', images);
+                    _this.images.canvasses.push(images[0]);
+                    _this.images.backgrounds.push(images[1]);
+                    _this.images.backgrounds.push(images[2]);
+
+                    for (var i = 3; i < images.length; i++) {
+                        _this.images.paintMasks.push(images[i]);
+                    }
                     // _this.getInverted(mask1)
                     // var invertedPaintMask = _this.getInverted(mask1);
                     // _this.images.invertedPaintMasks.push(invertedPaintMask);

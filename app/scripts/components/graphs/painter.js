@@ -23,8 +23,11 @@ function Painter (opts) {
             var diameter = radius * 2;
             var x = brush.cx - radius;
             var y = brush.cy - radius;
-            var mask = brushMasks[0];
-            var invertedMask = invertedBrushMasks[0];
+
+            var brushIndex = Math.floor(Math.random() * brushMasks.length);
+
+            var mask = brushMasks[brushIndex];
+            var invertedMask = invertedBrushMasks[brushIndex];
             // var invertedMask = brush.invertedMask;
             var color = brush.color;
             canvasWidth = diameter;
@@ -78,7 +81,25 @@ function Painter (opts) {
 
             var composite = this.saveLayer();
 
+            this.reset();
+
+            this.paintRotated(composite, canvasWidth, canvasHeight);
+            composite = this.saveLayer();
+            // ctx.restore();
+
+            // render
             outputCtx.drawImage(composite, x, y, canvasWidth, canvasHeight);
+        },
+
+        paintRotated: function (img, canvasWidth, canvasHeight) {
+            ctx.save();
+            var angle = Math.random() * 2;
+
+            ctx.translate(canvasWidth / 2, canvasHeight / 2);
+            ctx.rotate(angle);
+            ctx.drawImage(img, -canvasWidth / 2, -canvasHeight / 2, canvasWidth, canvasHeight);
+
+            ctx.restore();
         },
 
         paintEdge: function (invertedMask, canvasWidth, canvasHeight) {
