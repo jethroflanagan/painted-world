@@ -7,7 +7,7 @@ function Painter (opts) {
     var invertedBrushMasks;
 
     // cater for rotation possibly cutting images off
-    var CANVAS_PADDING = 40;
+    var CANVAS_PADDING = 20;
     var brushOffset = {
         x: CANVAS_PADDING,
         y: CANVAS_PADDING,
@@ -63,9 +63,9 @@ function Painter (opts) {
 
             // color
             ctx.globalCompositeOperation = 'source-atop';
-
-            var colorX = -Math.random() * (color.naturalWidth - brushWidth) + brushOffset.x;
-            var colorY = -Math.random() * (color.naturalHeight - brushHeight) + brushOffset.y;
+            // var scale = 1.5;
+            var colorX = /*-x * scale;//*/-Math.random() * (color.naturalWidth - brushWidth) + brushOffset.x;
+            var colorY = /*-y * scale;//*/-Math.random() * (color.naturalHeight - brushHeight) + brushOffset.y;
 
             ctx.drawImage(color, colorX, colorY, color.naturalWidth, color.naturalHeight);
 
@@ -105,11 +105,11 @@ function Painter (opts) {
 
             var composite = this.saveLayer();
             //
-            // this.reset();
-            //
-            // this.paintRotated(composite, brushOffset);
-            // composite = this.saveLayer();
-            // ctx.restore();
+            this.reset();
+
+            this.paintRotated(composite, brushOffset);
+            composite = this.saveLayer();
+            ctx.restore();
 
             // render
             outputCtx.globalAlpha = brush.opacity || 1;
@@ -129,17 +129,15 @@ function Painter (opts) {
             ctx.restore();
         },
 
-        paintEdge: function (invertedMask, brushOffset, brushWidth, brushHeight) {
+        paintEdge: function (invertedMask) {
             // ctx
             // ctx.shadowColor = 'rgba(0,0,0,1)';
             // ctx.shadowBlur = 30;
             // ctx.shadowOffsetX = 0;
             // ctx.shadowOffsetY = 0;
 
-            var CHEAP_PADDING = 0; // move the outline slightly away to prevent hard edges showing, but won't be perfect
-            ctx.filter = 'blur(4px)';
+            ctx.filter = 'blur(8px)';
             // for (var i = 0; i < 5; i++)
-            console.log(brushOffset);
             ctx.drawImage(invertedMask, 0, 0, canvasWidth, canvasWidth);
             ctx.filter = 'none';
             // ctx.shadowColor = 'rgba(0,0,0,0)';

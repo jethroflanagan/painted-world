@@ -131,15 +131,20 @@ function organiseCategories (aggregate, isLimited) {
         };
     });
 
-    groups = _.filter(groups, function (group) {
+    groups = _.filter(groups, function (group, name) {
+        group.name = name;
         return group.total > 1;
     });
 
 
-    _.map(groups, function (group, name) {
-        groups[name].percent = Math.round(groups[name].total / allGroupsTotal * 100);
+    _.map(groups, function (group) {
+        group.percent = Math.round(group.total / allGroupsTotal * 100);
     });
-
+    groups.sort((a,b) => a.total-b.total)
+    _.map(groups, function (g) {
+        console.log(g.name, '=', g.percent);
+    });
+// console.log('GROUPS', groups);
     return groups;
 }
 
@@ -201,8 +206,8 @@ const PaintedWorld = Vue.component('painted-world', {
 
             ctx.clearRect(0, 0, width, height);
             var i = 0;
-            var colorIndex = 0//Math.floor(Math.random() * this.images.colors.length);
-
+            var colorIndex = 1//Math.floor(Math.random() * this.images.colors.length);
+console.log('nodes', nodes.length)
             for (i = 0; i < nodes.length; i++) {
                 var d = nodes[i];
                 this.painter.paint(
@@ -244,14 +249,14 @@ const PaintedWorld = Vue.component('painted-world', {
 
             // ctx.save();
             ctx.globalCompositeOperation = 'multiply';
-            // ctx.drawImage(this.images.canvasses[0], 0, 0, this.width, this.height);
+            ctx.drawImage(this.images.canvasses[0], 0, 0, this.width, this.height);
             ctx.globalCompositeOperation = 'source-over';
             // ctx.restore();
 
-            // this.speckleCanvas();
+            this.speckleCanvas(this.images.colors[colorIndex]);
         },
 
-        speckleCanvas: function () {
+        speckleCanvas: function (color) {
             var numSplatters = Math.floor(Math.random() * 40) + 5;
             for (var i = 0; i < 36; i++) {
                 this.painter.paint(
@@ -259,7 +264,7 @@ const PaintedWorld = Vue.component('painted-world', {
                         cx: Math.random() * this.width,
                         cy: Math.random() * this.height,
                         radius: Math.random() * 3 + 1,
-                        color: this.images.colors[0],
+                        color: color,
                         opacity: 0.3,
                     }
                 );
@@ -309,7 +314,7 @@ const PaintedWorld = Vue.component('painted-world', {
                     node.name = name;
                     node.size = group.total;
                     node.offset = {
-                        angle: 0,//Math.random() * Math.PI * 2,
+                        angle: Math.random() * Math.PI * 2,
                     };
                     return node;
                 }),
@@ -336,7 +341,7 @@ const PaintedWorld = Vue.component('painted-world', {
                 var trig = Math.sin;
                 if (axis === 'x')
                     trig = Math.cos;
-                return d[axis] + PACK_PADDING * 0.4 * trig(d.offset.angle);
+                return d[axis] + PACK_PADDING * 0.3 * trig(d.offset.angle);
             }
             _.map(nodes, function (node) {
                 node.x = getPosition(node, 'x') + PADDING;
