@@ -1,6 +1,7 @@
 // import { colors } from './../../config';
 import { aggregateService } from '../../service/aggregate-service';
 import { Painter } from './painter';
+import { Labeler } from './labeler';
 
 const generateUUID = () => {
     var d = new Date().getTime();
@@ -140,10 +141,9 @@ function organiseCategories (aggregate, isLimited) {
     _.map(groups, function (group) {
         group.percent = Math.round(group.total / allGroupsTotal * 100);
     });
-    groups.sort((a,b) => a.total-b.total)
-    _.map(groups, function (g) {
-        console.log(g.name, '=', g.percent);
-    });
+    // _.map(groups, function (g) {
+    //     console.log(g.name, '=', g.percent);
+    // });
 // console.log('GROUPS', groups);
     return groups;
 }
@@ -177,6 +177,7 @@ const PaintedWorld = Vue.component('painted-world', {
         return {
             graphId: generateUUID(),
             ctx: null,
+            labelCtx: null,
             offscreenCtx: null,
             images: {
                 paintMasks: [],
@@ -207,7 +208,7 @@ const PaintedWorld = Vue.component('painted-world', {
             ctx.clearRect(0, 0, width, height);
             var i = 0;
             var colorIndex = 1//Math.floor(Math.random() * this.images.colors.length);
-console.log('nodes', nodes.length)
+            console.log('nodes', nodes.length)
             for (i = 0; i < nodes.length; i++) {
                 var d = nodes[i];
                 this.painter.paint(
@@ -218,6 +219,15 @@ console.log('nodes', nodes.length)
                         color: this.images.colors[colorIndex],
                     }
                 );
+
+                this.labeler.write({
+                    x: d.x,
+                    y: d.y,
+                    message: d.name,
+                    bounds: {
+                        x: d.radius * 2,
+                    },
+                });
                 console.log('loading', Math.floor((i + 1) / nodes.length  * 100));
             }
             // ctx.fill();
@@ -278,8 +288,8 @@ console.log('nodes', nodes.length)
             var groups = organiseCategories(aggregateService.data);
 
             var target = this.target;
-            var width = 700;//document.documentElement.clientWidth - margin.left - margin.right;
-            var height = 700;
+            var width = 800;//document.documentElement.clientWidth - margin.left - margin.right;
+            var height = 900;
 
             var dom = d3.select('.painted-world')
                 .append('canvas')
@@ -288,6 +298,21 @@ console.log('nodes', nodes.length)
                         height: height,
                     })
                     .node().getContext('2d');
+            var labelCtx = d3.select('.painted-world')
+                .append('canvas')
+                    .attr({
+                        width: width,
+                        height: height,
+                    })
+                    .style({
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        border: '1px solid #000',
+                        // left: 200,
+                    })
+                    .node().getContext('2d');
+
             var offscreenCtx = d3.select('.painted-world')
                 .append('canvas')
                     .attr({
@@ -301,6 +326,19 @@ console.log('nodes', nodes.length)
                         // left: 200,
                     })
                     .node().getContext('2d');
+            var offscreenLabelCtx = d3.select('.painted-world')
+                .append('canvas')
+                    .attr({
+                        width: width,
+                        height: height,
+                    })
+                    .style({
+                        position: 'absolute',
+                        bottom: 0,
+                        border: '1px solid #000',
+                        // left: 200,
+                    })
+                    .node().getContext('2d');
                 // .append('dom')
                 //     .attr('width', width + margin.left + margin.right)
                 //     .attr('height', height + margin.top + margin.bottom)
@@ -309,10 +347,11 @@ console.log('nodes', nodes.length)
 
             var data = {
                 name : 'root',
-                children : _.map(groups, function(group, name, i) {
+                children : _.map(groups, function(group, i) {
                     var node = {};
-                    node.name = name;
+                    node.name = group.name;
                     node.size = group.total;
+                    node.percent = group.percent;
                     node.offset = {
                         angle: Math.random() * Math.PI * 2,
                     };
@@ -377,9 +416,18 @@ console.log('nodes', nodes.length)
             this.painter = new Painter({
                 outputCtx: dom,
                 ctx: offscreenCtx,
+                labelCtx: labelCtx,
                 width: width,
                 height: height,
                 brushMasks: this.images.paintMasks,
+            });
+
+            this.labeler = new Labeler({
+                outputCtx: labelCtx,
+                ctx: offscreenLabelCtx,
+                width: width,
+                height: height,
+                nodes: nodes,
             });
         },
 
