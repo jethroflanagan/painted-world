@@ -182,7 +182,7 @@ const PaintedWorld = Vue.component('painted-world', {
             images: {
                 paintMasks: [],
                 invertedPaintMasks: [],
-                colors: [],
+                colorThemes: [],
                 canvasses: [],
             },
             painter: null,
@@ -207,7 +207,8 @@ const PaintedWorld = Vue.component('painted-world', {
 
             ctx.clearRect(0, 0, width, height);
             var i = 0;
-            var colorIndex = 1//Math.floor(Math.random() * this.images.colors.length);
+            var colorIndex = Math.floor(Math.random() * this.images.colorThemes.length);
+            var colorTheme = this.images.colorThemes[colorIndex];
             console.log('nodes', nodes.length)
             for (i = 0; i < nodes.length; i++) {
                 var d = nodes[i];
@@ -216,7 +217,7 @@ const PaintedWorld = Vue.component('painted-world', {
                         cx: d.x,
                         cy: d.y,
                         radius: d.r,
-                        color: this.images.colors[colorIndex],
+                        colorTheme: colorTheme,
                     }
                 );
 
@@ -263,18 +264,18 @@ const PaintedWorld = Vue.component('painted-world', {
             ctx.globalCompositeOperation = 'source-over';
             // ctx.restore();
 
-            this.speckleCanvas(this.images.colors[colorIndex]);
+            this.speckleCanvas(colorTheme);
         },
 
-        speckleCanvas: function (color) {
+        speckleCanvas: function (colorTheme) {
             var numSplatters = Math.floor(Math.random() * 40) + 5;
             for (var i = 0; i < 36; i++) {
                 this.painter.paint(
                     {
                         cx: Math.random() * this.width,
                         cy: Math.random() * this.height,
-                        radius: Math.random() * 3 + 1,
-                        color: color,
+                        radius: Math.random() * 6 + 1,
+                        colorTheme: colorTheme,
                         opacity: 0.3,
                     }
                 );
@@ -460,10 +461,10 @@ const PaintedWorld = Vue.component('painted-world', {
                 .then(function (images) {
                     // console.log('done', images);
                     _this.images.canvasses.push(images[0]);
-                    _this.images.colors.push(images[1]);
-                    _this.images.colors.push(images[2]);
-                    _this.images.colors.push(images[3]);
-                    _this.images.colors.push(images[4]);
+                    _this.images.colorThemes.push(images[1]);
+                    _this.images.colorThemes.push(images[2]);
+                    _this.images.colorThemes.push(images[3]);
+                    // _this.images.colorThemes.push(images[4]);
 
                     for (var i = 5; i < images.length; i++) {
                         _this.images.paintMasks.push(images[i]);

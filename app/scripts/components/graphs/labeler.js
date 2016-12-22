@@ -10,7 +10,7 @@ function Labeler (opts) {
     var methods = {
         setup: function () {
         },
-        write: function (opts) {return
+        write: function (opts) {
             this.clear();
             var message = opts.message;
             var bounds = opts.bounds;
@@ -20,7 +20,7 @@ function Labeler (opts) {
             ctx.fontSize = '16px';
             ctx.fontFamily = 'sans-serif';
             ctx.textAlign = 'start';
-            ctx.textBaseline = 'middle';
+            ctx.textBaseline = 'top';
             var measurements = ctx.measureText(opts.message);
             console.log(measurements);
             ctx.fillText(opts.message, 0, 0);

@@ -35,7 +35,7 @@ function Painter (opts) {
             var brushIndex = Math.floor(Math.random() * brushMasks.length);
 
             // var invertedMask = brush.invertedMask;
-            var color = brush.color;
+            var colorTheme = brush.colorTheme;
 
             var brushWidth = diameter;
             var brushHeight = diameter;
@@ -64,10 +64,10 @@ function Painter (opts) {
             // color
             ctx.globalCompositeOperation = 'source-atop';
             // var scale = 1.5;
-            var colorX = /*-x * scale;//*/-Math.random() * (color.naturalWidth - brushWidth) + brushOffset.x;
-            var colorY = /*-y * scale;//*/-Math.random() * (color.naturalHeight - brushHeight) + brushOffset.y;
+            var colorX = /*-x * scale;//*/-Math.random() * (colorTheme.naturalWidth - brushWidth) + brushOffset.x;
+            var colorY = /*-y * scale;//*/-Math.random() * (colorTheme.naturalHeight - brushHeight) + brushOffset.y;
 
-            ctx.drawImage(color, colorX, colorY, color.naturalWidth, color.naturalHeight);
+            ctx.drawImage(colorTheme, colorX, colorY, colorTheme.naturalWidth, colorTheme.naturalHeight);
 
             // ctx.
             // ctx.drawImage(color, x, y, diameter, diameter);
