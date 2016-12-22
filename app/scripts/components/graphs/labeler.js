@@ -1,30 +1,112 @@
 function Labeler (opts) {
-    var outputCtx = opts.outputCtx;
+    var outputEl = opts.outputEl;
+    var interactionEl = opts.interactionEl;
     var ctx = opts.ctx;
-    // var ctx = opts.ctx;
     var canvasWidth = opts.width;
     var canvasHeight = opts.height;
     var nodes = opts.nodes;
+    var labelImages = opts.labelImages;
+
+    // convert labelImages tp data URIs
+    //
+    // ctx.drawImage(labelImages[0], 0, 0);
+    // labelImages[0] = ctx.canvas.toDataURL('image/png');
+    // console.log(labelImages[0]);
 
     // cater for rotation possibly cutting images off
     var methods = {
         setup: function () {
         },
         write: function (opts) {
-            this.clear();
-            var message = opts.message;
-            var bounds = opts.bounds;
-            var x = opts.x;
-            var y = opts.y;
+            var group = opts.group;
+            var radius = opts.radius;
 
-            ctx.fontSize = '16px';
-            ctx.fontFamily = 'sans-serif';
-            ctx.textAlign = 'start';
-            ctx.textBaseline = 'top';
-            var measurements = ctx.measureText(opts.message);
-            console.log(measurements);
-            ctx.fillText(opts.message, 0, 0);
-            outputCtx.drawImage(this.saveLayer(), x, y);
+            var variation = 10;
+            var yOffset = -radius - 60;
+            var xOffset = 76;
+            var x = Math.round(opts.x + Math.random() * variation - variation / 2 + xOffset);
+            var y = Math.round(opts.y + Math.random() * variation - variation / 2 + yOffset);
+
+            var label = document.createElement('span');
+            label.setAttribute('class', 'Label');
+            label.setAttribute('style', [
+                'left:' + x + 'px',
+                'top:' + y + 'px',
+                // 'transform: rotate(' + Math.round(Math.random() * 10 - 5) + 'deg)',
+            ].join(';'));
+
+            var labelBackground = document.createElement('span');
+            labelBackground.setAttribute('class', 'LabelText-background');
+            // labelBackground.setAttribute('style', [
+            //     'background-image:' + 'url(' + labelImages[0] + ')',
+            //     'background-repeat: no-repeat',
+            // ].join(';'));
+
+            label.appendChild(labelBackground);
+
+            var labelText = document.createElement('span');
+            labelText.setAttribute('class', 'LabelText');
+            label.appendChild(labelText);
+
+            this.addText(group.name, 'LabelText-name', labelText);
+            var percent = Math.round(group.percent);
+            if (percent === 0) {
+                percent = 'less than 1%';
+            }
+            else {
+                percent += '%';
+            }
+            this.addText(percent, 'LabelText-percent', labelText);
+            this.addText('(' + this.formatMoney(group.amount) + ')', 'LabelText-amount', labelText);
+
+
+            this.createInteractionLayer(opts.x, opts.y, radius, label);
+
+            outputEl.appendChild(label);
+        },
+
+        createInteractionLayer: function (x, y, radius, label) {
+            var hitlayer = document.createElement('div');
+            hitlayer.setAttribute('class', 'Label-hit');
+
+            hitlayer.setAttribute('style', [
+                'left:' + (x - radius) + 'px',
+                'top:' + (y - radius) + 'px',
+                'width:' + radius * 2 + 'px',
+                'height:' + radius * 2 + 'px',
+            ].join(';'));
+
+            interactionEl.appendChild(hitlayer);
+            hitlayer.addEventListener('mouseover', function (e) {
+                label.setAttribute('class', 'Label Label--show');
+            });
+            hitlayer.addEventListener('mouseout', function (e) {
+                label.setAttribute('class', 'Label');
+            });
+
+            // hitlayer.addEventListener('touchstart', function (e) {
+            //
+            //     label.setAttribute('class', 'Label Label--show');
+            // });
+            // hitlayer.addEventListener('touchend', function (e) {
+            //     label.setAttribute('class', 'Label');
+            // });
+        },
+
+        formatMoney: function (val) {
+            val = '' + Math.round(val);
+            var rgx = /(\d+)(\d{3})/;
+            while (rgx.test(val)) {
+                val = val.replace(rgx, '$1' + ',' + '$2');
+            }
+            return 'R' + val;
+        },
+
+        addText: function (message, className, parent) {
+            var labelText = document.createElement('span');
+            labelText.setAttribute('class', className);
+            parent.appendChild(labelText);
+            labelText.innerHTML = message;
         },
 
         createDummyText: function () {

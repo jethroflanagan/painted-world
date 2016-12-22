@@ -182,8 +182,9 @@ const PaintedWorld = Vue.component('painted-world', {
             images: {
                 paintMasks: [],
                 invertedPaintMasks: [],
+                labels: [],
                 colorThemes: [],
-                canvasses: [],
+                canvases: [],
             },
             painter: null,
         };
@@ -222,12 +223,14 @@ const PaintedWorld = Vue.component('painted-world', {
                 );
 
                 this.labeler.write({
+                    group: {
+                        name: d.name,
+                        amount: d.size,
+                        percent: d.percent,
+                    },
                     x: d.x,
                     y: d.y,
-                    message: d.name,
-                    bounds: {
-                        x: d.radius * 2,
-                    },
+                    radius: d.r,
                 });
                 console.log('loading', Math.floor((i + 1) / nodes.length  * 100));
             }
@@ -260,7 +263,7 @@ const PaintedWorld = Vue.component('painted-world', {
 
             // ctx.save();
             ctx.globalCompositeOperation = 'multiply';
-            ctx.drawImage(this.images.canvasses[0], 0, 0, this.width, this.height);
+            ctx.drawImage(this.images.canvases[Math.floor(Math.random() * this.images.canvases.length)], 0, 0, this.width, this.height);
             ctx.globalCompositeOperation = 'source-over';
             // ctx.restore();
 
@@ -276,7 +279,7 @@ const PaintedWorld = Vue.component('painted-world', {
                         cy: Math.random() * this.height,
                         radius: Math.random() * 6 + 1,
                         colorTheme: colorTheme,
-                        opacity: 0.3,
+                        opacity: Math.random() * 0.3 + 0.1,
                     }
                 );
                 // console.log('loading', Math.floor((i + 1) / nodes.length  * 100));
@@ -299,20 +302,34 @@ const PaintedWorld = Vue.component('painted-world', {
                         height: height,
                     })
                     .node().getContext('2d');
-            var labelCtx = d3.select('.painted-world')
-                .append('canvas')
+            var labelEl = d3.select('.painted-world')
+                .append('div')
                     .attr({
-                        width: width,
-                        height: height,
                     })
                     .style({
                         position: 'absolute',
                         top: 0,
                         left: 0,
                         border: '1px solid #000',
+                        width: width + 'px',
+                        height: height + 'px',
                         // left: 200,
                     })
-                    .node().getContext('2d');
+                    .node();
+            var labelInteractionEl = d3.select('.painted-world')
+                .append('div')
+                    .attr({
+                    })
+                    .style({
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        border: '1px solid #0c0',
+                        width: width + 'px',
+                        height: height + 'px',
+                        // left: 200,
+                    })
+                    .node();
 
             var offscreenCtx = d3.select('.painted-world')
                 .append('canvas')
@@ -323,7 +340,7 @@ const PaintedWorld = Vue.component('painted-world', {
                     .style({
                         position: 'absolute',
                         top: 0,
-                        border: '1px solid #000',
+                        // border: '1px solid #000',
                         // left: 200,
                     })
                     .node().getContext('2d');
@@ -336,7 +353,7 @@ const PaintedWorld = Vue.component('painted-world', {
                     .style({
                         position: 'absolute',
                         bottom: 0,
-                        border: '1px solid #000',
+                        // border: '1px solid #000',
                         // left: 200,
                     })
                     .node().getContext('2d');
@@ -417,18 +434,18 @@ const PaintedWorld = Vue.component('painted-world', {
             this.painter = new Painter({
                 outputCtx: dom,
                 ctx: offscreenCtx,
-                labelCtx: labelCtx,
                 width: width,
                 height: height,
                 brushMasks: this.images.paintMasks,
             });
 
             this.labeler = new Labeler({
-                outputCtx: labelCtx,
+                outputEl: labelEl,
                 ctx: offscreenLabelCtx,
+                interactionEl: labelInteractionEl,
                 width: width,
                 height: height,
-                nodes: nodes,
+                labelImages: this.images.labels,
             });
         },
 
@@ -436,11 +453,22 @@ const PaintedWorld = Vue.component('painted-world', {
         loadAll: function () {
             var _this = this;
             var promise = Q.all([
-                this.loadImage('canvas.jpg'),
+                // canvases
+                this.loadImage('canvases/canvas1.jpg'),
+                this.loadImage('canvases/canvas2.jpg'),
+                this.loadImage('canvases/canvas3.jpg'),
+                this.loadImage('canvases/canvas4.jpg'),
+
+                // themes
                 this.loadImage('colors/color1.jpg'),
                 this.loadImage('colors/color2.jpg'),
                 this.loadImage('colors/color3.jpg'),
-                this.loadImage('colors/color4.jpg'),
+                // this.loadImage('colors/color4.jpg'),
+
+                // labels
+                this.loadImage('label.png'),
+
+                // brushes
                 this.loadImage('brushes/outline01.png'),
                 this.loadImage('brushes/outline02.png'),
                 this.loadImage('brushes/outline03.png'),
@@ -457,21 +485,26 @@ const PaintedWorld = Vue.component('painted-world', {
                 this.loadImage('brushes/outline14.png'),
                 this.loadImage('brushes/outline15.png'),
                 this.loadImage('brushes/outline16.png'),
+
             ])
                 .then(function (images) {
                     // console.log('done', images);
-                    _this.images.canvasses.push(images[0]);
-                    _this.images.colorThemes.push(images[1]);
-                    _this.images.colorThemes.push(images[2]);
-                    _this.images.colorThemes.push(images[3]);
-                    // _this.images.colorThemes.push(images[4]);
-
-                    for (var i = 5; i < images.length; i++) {
+                    var i = 0;
+                    for (i = 0; i < 4; i++) {
+                        _this.images.canvases.push(images[i]);
+                    }
+                    var num = i + 3;
+                    for (; i < num; i++) {
+                        _this.images.colorThemes.push(images[i]);
+                    }
+                    var num = i + 1;
+                    for (; i < num; i++) {
+                        _this.images.labels.push('images/label.png');
+                        // _this.images.labels.push(images[i]);
+                    }
+                    for (; i < images.length; i++) {
                         _this.images.paintMasks.push(images[i]);
                     }
-                    // _this.getInverted(mask1)
-                    // var invertedPaintMask = _this.getInverted(mask1);
-                    // _this.images.invertedPaintMasks.push(invertedPaintMask);
                     return true;
                 })
                 .then(this.setup)

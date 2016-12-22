@@ -1,36 +1,62 @@
-* {
-    box-sizing: border-box;
-}
-body {
-    overflow-x: hidden;
-    overflow-y: auto;
-    font-size: 15px;
-}
-.App {
-    background: #fafafa;
-    min-width: 100vw;
-    min-height: 100vh;
-
-    display: flex;
-
-    font-family: Roboto;
-    font-size: 1;
-    color: #222;
-    line-height: 1.5em;
-}
-
-.Placeholder {
-    height: 60px;
-    background: #ccc;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 200px;
-    color: #999;
-    &:after {
-        content: 'placeholder';
-        display: inline;
-        margin-left: 5px;
+.Label {
+    position: absolute;
+    // background: red;
+    width: 5px;
+    height: 5px;
+    opacity: 0;
+    transition: all 0.2s ease-out;
+    transform: scale(0.75, 0.75);
+    &--show {
+        opacity: 1;
+        margin-top: 0;
+        transform: scale(1, 1);
     }
+    // border: 1px solid #000;
+}
+
+.LabelText {
+    // font-family: 'Patrick Hand';
+    font-family: 'Coming Soon';
+    position: absolute;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    white-space: nowrap;
+
+    &-name {
+        font-size: 22px;
+        display: block;
+        margin-bottom: 10px;
+        color: #000;
+    }
+    &-percent {
+        display: inline-block;
+        font-size: 16px;
+        color: rgba(0, 0, 0, 0.8);
+    }
+    &-amount {
+        margin-left: 10px;
+        display: inline-block;
+        font-size: 16px;
+        color: rgba(0, 0, 0, 0.8);
+    }
+
+    &-background {
+        background-image: url(../images/label.png);
+        background-repeat: no-repeat;
+        width: 289px;
+        height: 142px;
+        display: block;
+        position: absolute;
+        transform: translate(-50%, -55px);
+    }
+}
+
+.Label-hit {
+    // background: red;
+    // width: 100px;
+    // height: 100px;
+    position: absolute;
+    // opacity: 0.8;
+    background: transparent;
+    border-radius: 100%;
 }
