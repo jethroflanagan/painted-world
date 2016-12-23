@@ -210,8 +210,18 @@ const PaintedWorld = Vue.component('painted-world', {
             var i = 0;
             var colorIndex = Math.floor(Math.random() * this.images.colorThemes.length);
             var colorTheme = this.images.colorThemes[colorIndex];
-            console.log('nodes', nodes.length)
-            for (i = 0; i < 1 && i < nodes.length; i++) {
+            console.log('nodes', nodes.length);
+
+            var count = nodes.length;
+            var onCompletePaint = function () {
+                if (--count <= 0) {
+                    ctx.globalCompositeOperation = 'multiply';
+                    ctx.drawImage(this.images.canvases[Math.floor(Math.random() * this.images.canvases.length)], 0, 0, this.width, this.height);
+                    ctx.globalCompositeOperation = 'source-over';
+                }
+            }.bind(this);
+
+            for (i = 0; i < 3 && i < nodes.length; i++) {
                 var d = nodes[i];
                 this.painter.paint(
                     {
@@ -219,7 +229,8 @@ const PaintedWorld = Vue.component('painted-world', {
                         cy: d.y,
                         radius: d.r,
                         colorTheme: colorTheme,
-                    }
+                    },
+                    onCompletePaint
                 );
 
                 this.labeler.write({
@@ -262,9 +273,7 @@ const PaintedWorld = Vue.component('painted-world', {
             // ctx.restore();
 
             // ctx.save();
-            ctx.globalCompositeOperation = 'multiply';
-            ctx.drawImage(this.images.canvases[Math.floor(Math.random() * this.images.canvases.length)], 0, 0, this.width, this.height);
-            ctx.globalCompositeOperation = 'source-over';
+
             // ctx.restore();
 
             // this.speckleCanvas(colorTheme);
@@ -292,8 +301,8 @@ const PaintedWorld = Vue.component('painted-world', {
             var groups = organiseCategories(aggregateService.data);
 
             var target = this.target;
-            var width = 300;//document.documentElement.clientWidth - margin.left - margin.right;
-            var height = 300;
+            var width = 700;//document.documentElement.clientWidth - margin.left - margin.right;
+            var height = 900;
 
             var dom = d3.select('.painted-world')
                 .append('canvas')

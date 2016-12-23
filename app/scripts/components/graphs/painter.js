@@ -21,11 +21,10 @@ function Painter (opts) {
             // console.log(invertedBrushMasks);
         },
 
-        // TODO paint at actual scale to improve performance
-        paint: function (brush) {
+        // Written as a promise chain to support Firefox and Safari doing async saving of the canvas
+        paint: function (brush, onComplete) {
             this.reset();
             ctx.save();
-
 
             var radius = brush.radius;
             var diameter = radius * 2;
@@ -52,75 +51,96 @@ function Painter (opts) {
             this.paintInverted(mask, brushOffset, brushWidth, brushHeight);
 
             var invertedMask;
-            this.saveLayer(function (layer) {
-                invertedMask = layer;
-                // this.reset();
-                //
-                // ctx.save();
-                // ctx.translate(canvasWidth/2,canvasHeight/2);
-                // // rotate the canvas to the specified degrees
-                // ctx.rotate(Math.random() *  Math.PI * 2);
-                //
-                // ctx.drawImage(mask, brushOffset.x, brushOffset.y, brushWidth, brushHeight);
-                // // ctx.restore();
-                // // ctx.save();
-                //
-                // // color
-                // ctx.globalCompositeOperation = 'source-atop';
-                // // var scale = 1.5;
-                // var colorX = /*-x * scale;//*/-Math.random() * (colorTheme.naturalWidth - brushWidth) + brushOffset.x;
-                // var colorY = /*-y * scale;//*/-Math.random() * (colorTheme.naturalHeight - brushHeight) + brushOffset.y;
-                //
-                // ctx.drawImage(colorTheme, colorX, colorY, colorTheme.naturalWidth, colorTheme.naturalHeight);
-            }.bind(this));
-                // ctx.
-                // ctx.drawImage(color, x, y, diameter, diameter);
-            // var base = this.saveLayer();
+            var base;
+            var edge;
+            var composite;
 
-            //
-            // this.reset();
-            //
-            // // draw Edge and mask it
-            // ctx.globalCompositeOperation = 'source-over';
-            // ctx.drawImage(base, 0, 0, canvasWidth, canvasHeight);
-            // // ctx.globalCompositeOperation = 'source-in';
-            // // this.paintEdge(invertedMask);
-            // // var edge = this.saveLayer();
-            // //
-            // // this.reset();
-            // // ctx.drawImage(mask, brushOffset.x, brushOffset.y, brushWidth, brushHeight);
-            // // ctx.globalCompositeOperation = 'source-in';
-            // // ctx.drawImage(edge, 0, 0, canvasWidth, canvasHeight);
-            // // ctx.globalCompositeOperation = 'source-over';
-            // //
-            // // // this.reset();
-            // // // ctx.globalCompositeOperation = 'source-over';
-            // //
-            // //
-            // // // ctx.restore();
-            // //
-            // // edge = this.saveLayer();
-            // // // this.reset();
-            // // //
-            // // // // use full canvas otherwise it scales image down. The full canvas is saved, so draw the full canvas
-            // // ctx.drawImage(base, 0, 0, canvasWidth, canvasHeight);
-            // // ctx.globalCompositeOperation = 'overlay';
-            // // ctx.drawImage(edge, 0, 0, canvasWidth, canvasHeight);
-            // // ctx.globalCompositeOperation = 'source-over';
-            //
-            // var composite = this.saveLayer();
-            // //
-            // // this.reset();
-            // //
-            // // this.paintRotated(composite, brushOffset);
-            // // composite = this.saveLayer();
-            // // ctx.restore();
-            //
-            // // render
-            // outputCtx.globalAlpha = brush.opacity || 1;
-            // outputCtx.drawImage(composite, 0, 0, canvasWidth, canvasHeight,
-            //                                x - brushOffset.x, y - brushOffset.y, canvasWidth, canvasHeight);
-            // outputCtx.globalAlpha = 1;
+            // Draw mask, then fill it with colorTheme
+            return this.saveLayer().then(function (layer) {
+                invertedMask = layer;
+                this.reset();
+
+                ctx.save();
+
+                ctx.drawImage(mask, brushOffset.x, brushOffset.y, brushWidth, brushHeight);
+                // ctx.restore();
+                // ctx.save();
+
+                // color
+                ctx.globalCompositeOperation = 'source-atop';
+                // var scale = 1.5;
+                var colorX = /*-x * scale;//*/-Math.random() * (colorTheme.naturalWidth - brushWidth) + brushOffset.x;
+                var colorY = /*-y * scale;//*/-Math.random() * (colorTheme.naturalHeight - brushHeight) + brushOffset.y;
+
+                ctx.drawImage(colorTheme, colorX, colorY, colorTheme.naturalWidth, colorTheme.naturalHeight);
+                console.log('then');
+                return this.saveLayer();
+            }.bind(this))
+
+            // Result saved as base
+            // Draw the inverted mask with a guassian blur for a less hard-edged inner dropshadow
+            .then(function (layer) {
+                base = layer;
+                ctx.globalCompositeOperation = 'source-in';
+                this.paintEdge(invertedMask);
+                return this.saveLayer();
+            }.bind(this))
+
+            // result saved as edge
+            // draw the edge layer in the mask space
+            // so only the shadow portion saves
+            .then(function (layer) {
+                edge = layer;
+                this.reset();
+                ctx.drawImage(mask, brushOffset.x, brushOffset.y, brushWidth, brushHeight);
+                ctx.globalCompositeOperation = 'source-in';
+                ctx.drawImage(edge, 0, 0, canvasWidth, canvasHeight);
+                ctx.globalCompositeOperation = 'source-over';
+                return this.saveLayer();
+            }.bind(this))
+
+            // result updates edge layer
+            // paint edges onto base brush with an overlay to create watercolour style edging on brush
+            .then(function (layer) {
+                // update edge
+                edge = layer;
+
+                // use full canvas otherwise it scales image down. The full canvas is saved, so draw the full canvas
+                ctx.drawImage(base, 0, 0, canvasWidth, canvasHeight);
+                ctx.globalCompositeOperation = 'overlay';
+                ctx.drawImage(edge, 0, 0, canvasWidth, canvasHeight);
+                ctx.globalCompositeOperation = 'source-over';
+
+                return this.saveLayer();
+            }.bind(this))
+
+            // composite saved
+            // repaint composite rotated around
+            .then(function (layer) {
+                composite = layer;
+
+                this.reset();
+                this.paintRotated(composite, brushOffset);
+                return this.saveLayer();
+            }.bind(this))
+
+            // update composite with result
+            // paint everything onto output canvas
+            .then(function (layer) {
+                composite = layer;
+                this.reset();
+
+                // render
+                outputCtx.globalAlpha = brush.opacity || 1;
+                outputCtx.drawImage(composite, 0, 0, canvasWidth, canvasHeight,
+                                               x - brushOffset.x, y - brushOffset.y, canvasWidth, canvasHeight);
+                outputCtx.globalAlpha = 1;
+                onComplete();
+            }.bind(this))
+
+            .catch(function (e) {
+                console.error(e);
+            });
         },
 
         paintRotated: function (img, brushOffset) {
@@ -152,17 +172,16 @@ function Painter (opts) {
         },
 
         saveLayer: function (onSaved) {
-            // var deferred = Q.defer();
+            var deferred = Q.defer();
             var layer = document.createElement('img');
-            // document.appendChild(layer);
-            document.querySelector('body').appendChild(layer);
+            // document.querySelector('body').appendChild(layer);
             layer.onload = function () {
-                // deferred.resolve(layer);
-                onSaved(layer);
+                deferred.resolve(layer);
+                // onSaved(layer);
             };
             layer.src = ctx.canvas.toDataURL('image/png');
 
-            // return deferred.promise;
+            return deferred.promise;
         },
 
         reset: function () {
