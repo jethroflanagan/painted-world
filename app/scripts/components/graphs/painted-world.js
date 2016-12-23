@@ -292,8 +292,8 @@ const PaintedWorld = Vue.component('painted-world', {
             var groups = organiseCategories(aggregateService.data);
 
             var target = this.target;
-            var width = 900;//document.documentElement.clientWidth - margin.left - margin.right;
-            var height = 900;
+            var width = 300;//document.documentElement.clientWidth - margin.left - margin.right;
+            var height = 300;
 
             var dom = d3.select('.painted-world')
                 .append('canvas')

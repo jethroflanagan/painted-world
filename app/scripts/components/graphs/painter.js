@@ -50,72 +50,77 @@ function Painter (opts) {
             var mask = brushMasks[brushIndex];
             this.reset();
             this.paintInverted(mask, brushOffset, brushWidth, brushHeight);
-            var invertedMask = this.saveLayer();
-            this.reset();
-            // ctx.save();
-            // ctx.translate(canvasWidth/2,canvasHeight/2);
-            // // rotate the canvas to the specified degrees
-            // ctx.rotate(Math.random() *  Math.PI * 2);
 
-            ctx.drawImage(mask, brushOffset.x, brushOffset.y, brushWidth, brushHeight);
-            // ctx.restore();
-            // ctx.save();
+            var invertedMask;
+            this.saveLayer(function (layer) {
+                invertedMask = layer;
+                // this.reset();
+                //
+                // ctx.save();
+                // ctx.translate(canvasWidth/2,canvasHeight/2);
+                // // rotate the canvas to the specified degrees
+                // ctx.rotate(Math.random() *  Math.PI * 2);
+                //
+                // ctx.drawImage(mask, brushOffset.x, brushOffset.y, brushWidth, brushHeight);
+                // // ctx.restore();
+                // // ctx.save();
+                //
+                // // color
+                // ctx.globalCompositeOperation = 'source-atop';
+                // // var scale = 1.5;
+                // var colorX = /*-x * scale;//*/-Math.random() * (colorTheme.naturalWidth - brushWidth) + brushOffset.x;
+                // var colorY = /*-y * scale;//*/-Math.random() * (colorTheme.naturalHeight - brushHeight) + brushOffset.y;
+                //
+                // ctx.drawImage(colorTheme, colorX, colorY, colorTheme.naturalWidth, colorTheme.naturalHeight);
+            }.bind(this));
+                // ctx.
+                // ctx.drawImage(color, x, y, diameter, diameter);
+            // var base = this.saveLayer();
 
-            // color
-            ctx.globalCompositeOperation = 'source-atop';
-            // var scale = 1.5;
-            var colorX = /*-x * scale;//*/-Math.random() * (colorTheme.naturalWidth - brushWidth) + brushOffset.x;
-            var colorY = /*-y * scale;//*/-Math.random() * (colorTheme.naturalHeight - brushHeight) + brushOffset.y;
-
-            ctx.drawImage(colorTheme, colorX, colorY, colorTheme.naturalWidth, colorTheme.naturalHeight);
-
-            // ctx.
-            // ctx.drawImage(color, x, y, diameter, diameter);
-            var base = this.saveLayer();
-
-            this.reset();
-
-            // draw Edge and mask it
-            ctx.globalCompositeOperation = 'source-over';
-            ctx.drawImage(base, 0, 0, canvasWidth, canvasHeight);
-            ctx.globalCompositeOperation = 'source-in';
-            this.paintEdge(invertedMask);
-            var edge = this.saveLayer();
-
-            this.reset();
-            ctx.drawImage(mask, brushOffset.x, brushOffset.y, brushWidth, brushHeight);
-            ctx.globalCompositeOperation = 'source-in';
-            ctx.drawImage(edge, 0, 0, canvasWidth, canvasHeight);
-            ctx.globalCompositeOperation = 'source-over';
-
+            //
             // this.reset();
+            //
+            // // draw Edge and mask it
             // ctx.globalCompositeOperation = 'source-over';
-
-
-            // ctx.restore();
-
-            edge = this.saveLayer();
-            // this.reset();
+            // ctx.drawImage(base, 0, 0, canvasWidth, canvasHeight);
+            // // ctx.globalCompositeOperation = 'source-in';
+            // // this.paintEdge(invertedMask);
+            // // var edge = this.saveLayer();
+            // //
+            // // this.reset();
+            // // ctx.drawImage(mask, brushOffset.x, brushOffset.y, brushWidth, brushHeight);
+            // // ctx.globalCompositeOperation = 'source-in';
+            // // ctx.drawImage(edge, 0, 0, canvasWidth, canvasHeight);
+            // // ctx.globalCompositeOperation = 'source-over';
+            // //
+            // // // this.reset();
+            // // // ctx.globalCompositeOperation = 'source-over';
+            // //
+            // //
+            // // // ctx.restore();
+            // //
+            // // edge = this.saveLayer();
+            // // // this.reset();
+            // // //
+            // // // // use full canvas otherwise it scales image down. The full canvas is saved, so draw the full canvas
+            // // ctx.drawImage(base, 0, 0, canvasWidth, canvasHeight);
+            // // ctx.globalCompositeOperation = 'overlay';
+            // // ctx.drawImage(edge, 0, 0, canvasWidth, canvasHeight);
+            // // ctx.globalCompositeOperation = 'source-over';
             //
-            // // use full canvas otherwise it scales image down. The full canvas is saved, so draw the full canvas
-            ctx.drawImage(base, 0, 0, canvasWidth, canvasHeight);
-            ctx.globalCompositeOperation = 'overlay';
-            ctx.drawImage(edge, 0, 0, canvasWidth, canvasHeight);
-            ctx.globalCompositeOperation = 'source-over';
-
-            var composite = this.saveLayer();
+            // var composite = this.saveLayer();
+            // //
+            // // this.reset();
+            // //
+            // // this.paintRotated(composite, brushOffset);
+            // // composite = this.saveLayer();
+            // // ctx.restore();
             //
-            this.reset();
-
-            this.paintRotated(composite, brushOffset);
-            composite = this.saveLayer();
-            ctx.restore();
-
-            // render
-            outputCtx.globalAlpha = brush.opacity || 1;
-            outputCtx.drawImage(composite, 0, 0, canvasWidth, canvasHeight,
-                                           x - brushOffset.x, y - brushOffset.y, canvasWidth, canvasHeight);
-            outputCtx.globalAlpha = 1;
+            // // render
+            // outputCtx.globalAlpha = brush.opacity || 1;
+            // outputCtx.drawImage(composite, 0, 0, canvasWidth, canvasHeight,
+            //                                x - brushOffset.x, y - brushOffset.y, canvasWidth, canvasHeight);
+            // outputCtx.globalAlpha = 1;
         },
 
         paintRotated: function (img, brushOffset) {
@@ -146,10 +151,18 @@ function Painter (opts) {
             // ctx.shadowOffsetY = 0;
         },
 
-        saveLayer: function () {
+        saveLayer: function (onSaved) {
+            // var deferred = Q.defer();
             var layer = document.createElement('img');
+            // document.appendChild(layer);
+            document.querySelector('body').appendChild(layer);
+            layer.onload = function () {
+                // deferred.resolve(layer);
+                onSaved(layer);
+            };
             layer.src = ctx.canvas.toDataURL('image/png');
-            return layer;
+
+            // return deferred.promise;
         },
 
         reset: function () {
