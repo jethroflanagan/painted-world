@@ -211,7 +211,7 @@ const PaintedWorld = Vue.component('painted-world', {
             var colorIndex = Math.floor(Math.random() * this.images.colorThemes.length);
             var colorTheme = this.images.colorThemes[colorIndex];
             console.log('nodes', nodes.length)
-            for (i = 0; i < nodes.length; i++) {
+            for (i = 0; i < 1 && i < nodes.length; i++) {
                 var d = nodes[i];
                 this.painter.paint(
                     {
@@ -267,7 +267,7 @@ const PaintedWorld = Vue.component('painted-world', {
             ctx.globalCompositeOperation = 'source-over';
             // ctx.restore();
 
-            this.speckleCanvas(colorTheme);
+            // this.speckleCanvas(colorTheme);
         },
 
         speckleCanvas: function (colorTheme) {
@@ -292,7 +292,7 @@ const PaintedWorld = Vue.component('painted-world', {
             var groups = organiseCategories(aggregateService.data);
 
             var target = this.target;
-            var width = 800;//document.documentElement.clientWidth - margin.left - margin.right;
+            var width = 900;//document.documentElement.clientWidth - margin.left - margin.right;
             var height = 900;
 
             var dom = d3.select('.painted-world')
@@ -314,6 +314,7 @@ const PaintedWorld = Vue.component('painted-world', {
                         width: width + 'px',
                         height: height + 'px',
                         // left: 200,
+                        // display: 'none',
                     })
                     .node();
             var labelInteractionEl = d3.select('.painted-world')
@@ -466,7 +467,11 @@ const PaintedWorld = Vue.component('painted-world', {
                 // this.loadImage('colors/color4.jpg'),
 
                 // labels
-                this.loadImage('label.png'),
+                this.loadImage('label/label1.png'),
+                this.loadImage('label/label2.png'),
+                this.loadImage('label/label3.png'),
+                this.loadImage('label/label4.png'),
+                this.loadImage('label/label5.png'),
 
                 // brushes
                 this.loadImage('brushes/outline01.png'),
@@ -497,7 +502,7 @@ const PaintedWorld = Vue.component('painted-world', {
                     for (; i < num; i++) {
                         _this.images.colorThemes.push(images[i]);
                     }
-                    var num = i + 1;
+                    var num = i + 5;
                     for (; i < num; i++) {
                         _this.images.labels.push('images/label.png');
                         // _this.images.labels.push(images[i]);

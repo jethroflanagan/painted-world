@@ -21,34 +21,28 @@ function Labeler (opts) {
             var group = opts.group;
             var radius = opts.radius;
 
-            var variation = 10;
-            var yOffset = -radius - 60;
-            var xOffset = 76;
+            var variation = 0;
+            var yOffset = -radius + 18;
+            var xOffset = -3;
             var x = Math.round(opts.x + Math.random() * variation - variation / 2 + xOffset);
             var y = Math.round(opts.y + Math.random() * variation - variation / 2 + yOffset);
 
-            var label = document.createElement('span');
-            label.setAttribute('class', 'Label');
+            var label = this.addLayer(null, 'Label');
             label.setAttribute('style', [
                 'left:' + x + 'px',
                 'top:' + y + 'px',
                 // 'transform: rotate(' + Math.round(Math.random() * 10 - 5) + 'deg)',
             ].join(';'));
 
-            var labelBackground = document.createElement('span');
-            labelBackground.setAttribute('class', 'LabelText-background');
-            // labelBackground.setAttribute('style', [
-            //     'background-image:' + 'url(' + labelImages[0] + ')',
-            //     'background-repeat: no-repeat',
-            // ].join(';'));
+            var labelContainer = this.addLayer(label, 'Label-rotate');
 
-            label.appendChild(labelBackground);
 
-            var labelText = document.createElement('span');
-            labelText.setAttribute('class', 'LabelText');
-            label.appendChild(labelText);
+            var labelBackground = this.addLayer(label, 'LabelText-background');
 
-            this.addText(group.name, 'LabelText-name', labelText);
+            var labelText = this.addLayer(label, 'LabelText');
+
+            this.addLayer(labelText, 'LabelText-name', group.name);
+
             var percent = Math.round(group.percent);
             if (percent === 0) {
                 percent = 'less than 1%';
@@ -56,9 +50,8 @@ function Labeler (opts) {
             else {
                 percent += '%';
             }
-            this.addText(percent, 'LabelText-percent', labelText);
-            this.addText('(' + this.formatMoney(group.amount) + ')', 'LabelText-amount', labelText);
-
+            this.addLayer(labelText, 'LabelText-percent', percent);
+            this.addLayer(labelText, 'LabelText-amount', '(' + this.formatMoney(group.amount) + ')');
 
             this.createInteractionLayer(opts.x, opts.y, radius, label);
 
@@ -81,7 +74,7 @@ function Labeler (opts) {
                 label.setAttribute('class', 'Label Label--show');
             });
             hitlayer.addEventListener('mouseout', function (e) {
-                label.setAttribute('class', 'Label');
+                label.setAttribute('class', 'Label Label--hide');
             });
 
             // hitlayer.addEventListener('touchstart', function (e) {
@@ -102,11 +95,16 @@ function Labeler (opts) {
             return 'R' + val;
         },
 
-        addText: function (message, className, parent) {
-            var labelText = document.createElement('span');
-            labelText.setAttribute('class', className);
-            parent.appendChild(labelText);
-            labelText.innerHTML = message;
+        addLayer: function (parent, className, text) {
+            var layer = document.createElement('span');
+            layer.setAttribute('class', className);
+            if (parent) {
+                parent.appendChild(layer);
+            }
+            if (text) {
+                layer.innerHTML = text;
+            }
+            return layer;
         },
 
         createDummyText: function () {

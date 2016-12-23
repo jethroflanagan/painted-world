@@ -40,10 +40,10 @@ gulp.task('browserSync', function() {
 
 //compressing images & handle SVG files
 gulp.task('images', function(tmp) {
-    gulp.src(['app/images/**/*.jpg', 'app/images/**/*.png'])
+    return gulp.src('app/images/**/*.*')
         //prevent pipe breaking caused by errors from gulp plugins
-        .pipe(plumber())
-        .pipe(imagemin({ optimizationLevel: 5, progressive: true, interlaced: true }))
+        // .pipe(plumber())
+        // .pipe(imagemin({ optimizationLevel: 5, progressive: true, interlaced: true }))
         .pipe(gulp.dest('.dist/images'));
 });
 
@@ -51,7 +51,7 @@ gulp.task('images', function(tmp) {
 
 //fonts
 gulp.task('fonts', function(tmp) {
-    gulp.src(['app/fonts/**/*.*'])
+    return gulp.src(['app/fonts/**/*.*'])
         //prevent pipe breaking caused by errors from gulp plugins
         .pipe(plumber())
         .pipe(gulp.dest('.dist/fonts'));
@@ -176,7 +176,7 @@ gulp.task('default', function() {
     gulp.watch('app/scripts/**/*.js', ['scripts']);
     gulp.watch('app/vendor/**/*.*', ['vendor']);
     gulp.watch('app/styles/**/*.scss', ['styles']);
-    gulp.watch(['app/images/**/*.png', 'app/images/**/*.jpg'], ['images']);
+    gulp.watch(['app/images/**/*.*'], ['images']);
     gulp.watch('app/fonts/**/*.*', ['fonts']);
     gulp.watch(['app/index.html', 'app/templates/**/*.html'], ['html']);
 });
