@@ -74,9 +74,9 @@ function organiseCategories (aggregate, isLimited) {
         "Donations to charity": "Gifts & Donations",
         "ATM & Cash": "ATM & Cash",
     };
-    var now = new Date();
+    // var now = moment();
     // TODO start of 12 months ago
-    var yearStart = new Date(now.getFullYear(), 0, 1).getTime();
+    var yearStart = +moment().subtract(12, 'months').startOf('year');
     var groups = {};
 
     if (isLimited) {
@@ -144,7 +144,7 @@ function organiseCategories (aggregate, isLimited) {
     // _.map(groups, function (g) {
     //     console.log(g.name, '=', g.percent);
     // });
-// console.log('GROUPS', groups);
+    console.log('GROUPS', groups);
     return groups;
 }
 
@@ -178,7 +178,7 @@ const PaintedWorld = Vue.component('painted-world', {
             graphId: generateUUID(),
             ctx: null,
             labelCtx: null,
-            offscreenCtx: null,
+            // offscreenCtx: null,
             images: {
                 paintMasks: [],
                 invertedPaintMasks: [],
@@ -220,9 +220,9 @@ const PaintedWorld = Vue.component('painted-world', {
                     ctx.globalCompositeOperation = 'source-over';
                 }
             }.bind(this);
-
-            for (i = 0; i < 3 && i < nodes.length; i++) {
+            for (i = 0; i < nodes.length; i++) {
                 var d = nodes[i];
+                console.log(d);
                 this.painter.paint(
                     {
                         cx: d.x,
@@ -298,10 +298,10 @@ const PaintedWorld = Vue.component('painted-world', {
         setup: function () {
             var PACK_PADDING = 30;
             var PADDING = 20;
-            var groups = organiseCategories(aggregateService.data);
+            var groups = organiseCategories(aggregateService.data, false);
 
             var target = this.target;
-            var width = 700;//document.documentElement.clientWidth - margin.left - margin.right;
+            var width = 900;//document.documentElement.clientWidth - margin.left - margin.right;
             var height = 900;
 
             var dom = d3.select('.painted-world')
@@ -341,19 +341,19 @@ const PaintedWorld = Vue.component('painted-world', {
                     })
                     .node();
 
-            var offscreenCtx = d3.select('.painted-world')
-                .append('canvas')
-                    .attr({
-                        width: width,
-                        height: height,
-                    })
-                    .style({
-                        position: 'absolute',
-                        top: 0,
-                        // border: '1px solid #000',
-                        // left: 200,
-                    })
-                    .node().getContext('2d');
+            // var offscreenCtx = d3.select('.painted-world')
+            //     .append('canvas')
+            //         .attr({
+            //             width: width,
+            //             height: height,
+            //         })
+            //         .style({
+            //             position: 'absolute',
+            //             top: 0,
+            //             // border: '1px solid #000',
+            //             // left: 200,
+            //         })
+            //         .node().getContext('2d');
             var offscreenLabelCtx = d3.select('.painted-world')
                 .append('canvas')
                     .attr({
@@ -438,12 +438,12 @@ const PaintedWorld = Vue.component('painted-world', {
             this.width = width;
             this.height = height;
             this.ctx = dom;
-            this.offscreenCtx = offscreenCtx;
+            // this.offscreenCtx = offscreenCtx;
             this.nodes = nodes;
 
             this.painter = new Painter({
                 outputCtx: dom,
-                ctx: offscreenCtx,
+                // ctx: offscreenCtx,
                 width: width,
                 height: height,
                 brushMasks: this.images.paintMasks,
