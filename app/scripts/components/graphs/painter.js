@@ -1,6 +1,6 @@
 function Painter (opts) {
     var outputCtx = opts.outputCtx;
-    // var ctx = opts.ctx;
+    var offscreenEl = opts.offscreenEl;
     // var canvasWidth = opts.width;
     // var canvasHeight = opts.height;
     var brushMasks = opts.brushMasks;
@@ -19,7 +19,7 @@ function Painter (opts) {
 
         // need offscreen canvas per brush to prevent overlapping use
         addCanvas: function () {
-            var ctx = d3.select('.painted-world')
+            var ctx = offscreenEl
                 .append('canvas')
                     .attr({
                         width: 1,
@@ -36,7 +36,7 @@ function Painter (opts) {
         },
 
         removeCanvas: function (ctx) {
-            this.ctx.canvas.remove();
+            ctx.canvas.remove();
         },
 
         // Written as a promise chain to support Firefox and Safari doing async saving of the canvas
@@ -97,6 +97,7 @@ function Painter (opts) {
 
                 ctx.drawImage(colorTheme, colorX, colorY, colorTheme.naturalWidth, colorTheme.naturalHeight);
                 console.log('then');
+                ctx.globalCompositeOperation = 'source-over';
                 return this.saveLayer(ctx);
             }.bind(this))
 
@@ -151,15 +152,14 @@ function Painter (opts) {
             // paint everything onto output canvas
             .then(function (layer) {
                 composite = layer;
-                this.reset(ctx);
+                // this.reset(ctx);
 
                 // render
                 outputCtx.globalAlpha = brush.opacity || 1;
-                outputCtx.drawImage(composite, 0, 0, canvasWidth, canvasHeight,
-                                               x - brushOffset.x, y - brushOffset.y, canvasWidth, canvasHeight);
+                outputCtx.drawImage(composite, x - brushOffset.x, y - brushOffset.y, canvasWidth, canvasHeight)
                 outputCtx.globalAlpha = 1;
                 onComplete();
-                // this.removeCanvas();
+                // this.removeCanvas(ctx);
             }.bind(this))
 
             .catch(function (e) {
@@ -168,8 +168,8 @@ function Painter (opts) {
         },
 
         paintRotated: function (ctx, img) {
-            var canvasWidth = ctx.canvas.canvasWidth;
-            var canvasHeight = ctx.canvas.canvasHeight;
+            var canvasWidth = ctx.canvas.width;
+            var canvasHeight = ctx.canvas.height;
             ctx.save();
             var angle = Math.random() * 2;
 
@@ -181,8 +181,8 @@ function Painter (opts) {
         },
 
         paintEdge: function (ctx, invertedMask) {
-            var canvasWidth = ctx.canvas.canvasWidth;
-            var canvasHeight = ctx.canvas.canvasHeight;
+            var canvasWidth = ctx.canvas.width;
+            var canvasHeight = ctx.canvas.height;
             // ctx
             // ctx.shadowColor = 'rgba(0,0,0,1)';
             // ctx.shadowBlur = 30;
@@ -223,12 +223,13 @@ function Painter (opts) {
         },
 
         clear: function (ctx) {
-            ctx.clearRect(0, 0, ctx.canvas.canvasWidth, ctx.canvas.canvasHeight);
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         },
 
 
         paintInverted: function (ctx, img, brushOffset, brushWidth, brushHeight) {
-            ctx.fillRect(0, 0, ctx.canvas.canvasWidth, ctx.canvas.canvasHeight);
+            ctx.fillStyle = "#000";
+            ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
             ctx.globalCompositeOperation = 'destination-out';
             ctx.drawImage(img, brushOffset.x, brushOffset.y, brushWidth, brushHeight);
             ctx.globalCompositeOperation = 'source-over';
