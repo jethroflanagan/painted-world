@@ -1,3 +1,8 @@
+.Painting {
+    position: relative;
+    width: 900px;
+    height: 800px;
+}
 .Label {
     $anim: 0.3s ease-out .1s;
     $animOut: 0.15s ease-out 0.15s;
@@ -90,6 +95,15 @@
 
 .Painting {
     position: relative;
+    user-select: none;
+}
+
+.PaintControls {
+    display: block;
+    position: relative;
+    &--disabled {
+        // display: none;
+    }
 }
 
 .Button {
@@ -97,30 +111,35 @@
     padding: 10px 20px;
     border-radius: 100px;
     font-family: 'Titillium Web';
-    font-weight: 700;
     font-size: 1em;
     border: none;
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.08);
     color: rgba(0,0,0,0.6);
     // box-shadow: inset 1px 1px 20px rgba(0, 0, 0, 0.2);
     box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.2);
     outline: none;
-    z-index: 2;
+    line-height: 25px;
     transition:
-        opacity .8s ease-out,
+        background .3s ease-out,
         color 0.3s ease-out,
         box-shadow 0.3s ease-out;
     &:not(:disabled) {
         cursor: pointer;
-        &:hover {
+        &:hover, &:focus, &:active {
+            background: rgba(0, 0, 0, 0.1);
             box-shadow: inset 0 0 1px rgba(0, 0, 0, 0.4);
             color: rgba(0,0,0,0.9);
         }
     }
-    &:disabled {
-        opacity: 0;
-        transition:
-            opacity .3s ease-out;
+    &:visited, &:focus, &:active {
+        text-decoration: none;
+    }
+    &--disabled {
+        pointer-events: none;
+        cursor: default;
+        background: rgba(0, 0, 0, 0.06);
+        box-shadow: inset 0 0 1px rgba(0, 0, 0, 0.2);
+        color: rgba(0,0,0,0.3);
     }
     &--reset {
         top: 20px;
@@ -129,7 +148,108 @@
     }
     &--download {
         top: 15px;
-        left: 160px;
+        right: 30px;
         transform: rotate(-1deg);
+    }
+}
+
+.Offscreen {
+    display: none;
+}
+
+.Checkbox {
+    $cross1Transform: rotate(45deg) translate(6px, 6px);
+    $cross2Transform: rotate(-35deg) translate(-3px, 5px);
+
+    position: absolute;
+    cursor: pointer;
+    &--disabled {
+        pointer-events: none;
+        cursor: default;
+    }
+
+    &-label {
+        display: inline-block;
+        font-family: 'Titillium Web';
+        line-height: 20px;
+        transform: rotate(-5deg) translate(-2px, -8px);
+        color: rgba(0,0,0,0.6);
+        transition: color .3s ease-out;
+    }
+    &--disabled &-label {
+        color: rgba(0,0,0,0.3);
+    }
+    &-field[type="checkbox"] {
+        // width: 100px;
+        //opacity: 0.5;
+        appearance: none;
+        &:hover + .Checkbox-box,
+        &:focus + .Checkbox-box,
+        &:active + .Checkbox-box {
+            background: rgba(0, 0, 0, 0.2);
+            box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.3);
+        }
+        &:hover ~ .Checkbox-label,
+        &:focus ~ .Checkbox-label,
+        &:active ~ .Checkbox-label {
+            color: rgba(0,0,0,0.9);
+        }
+        &:checked + .Checkbox-box {
+            &:before {
+                transform: $cross1Transform scale(1,1);
+            }
+            &:after {
+                transform: $cross2Transform scale(1,1);
+            }
+        }
+    }
+    &-box {
+        transform: rotate(3deg);// translate(3px, -8px);
+        display:inline-block;
+        width: 20px;
+        height: 20px;
+        box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.2);
+        border-radius: 3px;
+        // background:url(check_radio_sheet.png) left top no-repeat;
+        background: rgba(0, 0, 0, 0.1);
+        mix-blend-mode: multiply;
+        transition:
+            box-shadow .3s ease-out,
+            background .3s ease-out;
+
+        $pseudoTransformTransition: transform 0.1s ease-out;
+        $pseudoOtherTransition: background 0.1s ease-out;
+        &:before, &:after {
+            content: '';
+            display: block;
+            background: #666;
+            width: 17px;
+            height: 2px;
+            transform: $cross1Transform scale(0,1);
+            border-radius: 20px;
+        }
+        &:before {
+            transform: $cross1Transform scale(0,1);
+            transition:
+            $pseudoTransformTransition .1s,
+                $pseudoOtherTransition;
+        }
+        &:after {
+            transform: $cross2Transform scale(0,1);
+            transition:
+                $pseudoTransformTransition,
+                $pseudoOtherTransition;
+        }
+    }
+    &--disabled &-box {
+        background: rgba(0, 0, 0, 0.06);
+        box-shadow: inset 0 0 1px rgba(0, 0, 0, 0.2);
+        &:after, &:before {
+            background: #bbb;
+        }
+    }
+    &--messy {
+        left: 160px;
+        top: 30px;
     }
 }

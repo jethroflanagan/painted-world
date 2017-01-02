@@ -26,6 +26,7 @@ function Painter (opts) {
                         height: 1,
                     })
                     .style({
+                        // filter: 'hue-rotate(100deg)': 
                         // position: 'absolute',
                         // top: 0,
                         // border: '1px solid #000',
@@ -96,7 +97,6 @@ function Painter (opts) {
                 var colorY = /*-y * scale;//*/-Math.random() * (colorTheme.naturalHeight - brushHeight) + brushOffset.y;
 
                 ctx.drawImage(colorTheme, colorX, colorY, colorTheme.naturalWidth, colorTheme.naturalHeight);
-                console.log('then');
                 ctx.globalCompositeOperation = 'source-over';
                 return this.saveLayer(ctx);
             }.bind(this))
