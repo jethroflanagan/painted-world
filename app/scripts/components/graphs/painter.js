@@ -156,10 +156,13 @@ function Painter (opts) {
 
                 // render
                 outputCtx.globalAlpha = brush.opacity || 1;
+                outputCtx.globalCompositeOperation = 'multiply';
                 outputCtx.drawImage(composite, x - brushOffset.x, y - brushOffset.y, canvasWidth, canvasHeight)
                 outputCtx.globalAlpha = 1;
-                onComplete();
-                // this.removeCanvas(ctx);
+                if (onComplete) {
+                    onComplete();
+                }
+                this.removeCanvas(ctx);
             }.bind(this))
 
             .catch(function (e) {

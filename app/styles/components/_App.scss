@@ -1,52 +1,46 @@
 .Label {
-    $anim: 0.3s ease-out;
+    $anim: 0.3s ease-out .1s;
+    $animOut: 0.15s ease-out 0.15s;
     position: absolute;
     // width: 5px;
     // height: 5px;
+    // background: red;
     opacity: 0;
-    // transition:
-    //     transform $anim,
-    //     opacity $anim;
-    transform: scale(1, 1);
+    pointer-events: none;
+    transform: scale(.75, .75);
+    transition:
+        transform $anim,
+        opacity $anim;
+    // transform: scale(1, 1);
     &--show {
-        // opacity: 1;
+        opacity: 1;
         // margin-top: 0;
-        // transform: scale(1, 1);
-        animation: showContainer .3s  linear 1 forwards;
+        transform: scale(1, 1);
+        // animation: showContainer .3s  linear 1 forwards;
     }
     &--hide {
-        // opacity: 1;
+        transition:
+            transform $animOut,
+            opacity $animOut;
+        // opacity:  1;
         // margin-top: 0;
-        // transform: scale(1, 1);
-        animation: hideContainer .2s  linear 1 forwards;
+        // transform: scale(.75, .75);
+        // animation: hideContainer .2s  linear 1 forwards;
+    }
+    &-rotate {
+        display: block;
     }
     // border: 1px solid #000;
-    @keyframes showContainer {
-        0% { opacity: 0; };
-        20% { opacity: 1; }
-        100% { opacity: 1; transform: scale(1, 1)}
-    }
-    @keyframes hideContainer {
-        0% { opacity: 1; };
-        // 0% { opacity: 1; };
-        99% { opacity: 0; transform: scale(0.75, 0.75) }
-        100% { opacity: 0; transform: scale(1, 1) }
-    }
 }
 
 .LabelText {
-    $labelAnimProps:  linear 1 forwards;
-    $labelTextShowAnim: label-text-unwrap .3s  $labelAnimProps;
-    $labelTextHideAnim: label-text-wrap .2s  $labelAnimProps;
-
-    $labelShowAnim: label-unwrap .3s $labelAnimProps;
-    $labelHideAnim: label-wrap .2s $labelAnimProps;
-
-    // font-family: 'Patrick Hand';
-    // font-family: 'Coming Soon';
     font-family: 'Titillium Web';
     position: absolute;
+
     transform: translate(calc(-50% + 78px), -100px);
+    &--flip {
+        transform: translate(calc(-50% + -73px), -100px);
+    }
     text-align: center;
     white-space: nowrap;
 
@@ -55,88 +49,31 @@
         display: block;
         margin-bottom: 10px;
         color: #000;
-        .Label--show & {
-            animation: $labelTextShowAnim;
-        }
-        .Label--hide & {
-            animation: $labelTextHideAnim;
-        }
     }
     &-percent {
         display: inline-block;
         font-size: 16px;
         color: rgba(0, 0, 0, 0.8);
-        .Label--show & {
-            animation: $labelTextShowAnim;
-        }
-        .Label--hide & {
-            animation: $labelTextHideAnim;
-        }
     }
     &-amount {
         margin-left: 10px;
         display: inline-block;
         font-size: 16px;
         color: rgba(0, 0, 0, 0.8);
-        .Label--show & {
-            animation: $labelTextShowAnim;
-        }
-        .Label--hide & {
-            animation: $labelTextHideAnim;
-        }
     }
 
     &-background {
-        // background-image: url(../images/label.png);
+        background-image: url(../images/label.png);
         background-repeat: no-repeat;
         width: 289px;
         height: 150px;
         display: block;
         position: absolute;
-        transform: translate(-66px, -137px);
-        .Label--show & {
-            animation: $labelShowAnim;
+        transform: translate(-66px, -127px);
+        &--flip {
+            transform: translate(-217px, -127px) scale(-1, 1);
         }
-        .Label--hide & {
-            animation: $labelHideAnim;
-        }
-    }
 
-    @keyframes label-text-unwrap {
-        0% {
-            opacity: 0;
-        }
-        90% {
-            opacity: 0;
-        }
-        100% {
-            opacity: 1;
-        }
-    }
-    @keyframes label-text-wrap {
-        0% {
-            opacity: 0;
-        }
-        90% {
-            opacity: 0;
-        }
-        100% {
-            opacity: 1;
-        }
-    }
-    @keyframes label-unwrap {
-        0% { background-image: url(../images/label/label1.png); }
-        25% { background-image: url(../images/label/label2.png); }
-        50% { background-image: url(../images/label/label3.png); }
-        75% { background-image: url(../images/label/label4.png); }
-        100% { background-image: url(../images/label/label5.png); }
-    }
-    @keyframes label-wrap {
-        0% { background-image: url(../images/label/label5.png); }
-        // 25% { background-image: url(../images/label/label4.png); }
-        // 50% { background-image: url(../images/label/label3.png); }
-        // 75% { background-image: url(../images/label/label2.png); }
-        // 100% { background-image: url(../images/label/label1.png); }
     }
 }
 
@@ -148,4 +85,44 @@
     // opacity: 0.8;
     background: transparent;
     border-radius: 100%;
+    cursor: pointer;
+}
+
+.Painting {
+    position: relative;
+}
+
+.Button {
+    position: absolute;
+    padding: 10px 20px;
+    border-radius: 100px;
+    font-family: 'Titillium Web';
+    font-weight: 300;
+    font-size: 1em;
+    border: none;
+    background: rgba(0, 0, 0, 0.1);
+    color: rgba(0,0,0,0.6);
+    // box-shadow: inset 1px 1px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.2);
+    outline: none;
+    cursor: pointer;
+    z-index: 2;
+    transition:
+        color 0.3s ease-out,
+        box-shadow 0.3s ease-out;
+    &:hover {
+        box-shadow: inset 0 0 1px rgba(0, 0, 0, 0.4);
+        color: rgba(0,0,0,0.9);
+    }
+
+    &--reset {
+        top: 20px;
+        left: 20px;
+        transform: rotate(3deg);
+    }
+    &--download {
+        top: 15px;
+        left: 160px;
+        transform: rotate(-1deg);
+    }
 }

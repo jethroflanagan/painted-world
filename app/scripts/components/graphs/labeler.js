@@ -6,28 +6,39 @@ function Labeler (opts) {
     var canvasHeight = opts.height;
     var nodes = opts.nodes;
     var labelImages = opts.labelImages;
-
     // convert labelImages tp data URIs
     //
     // ctx.drawImage(labelImages[0], 0, 0);
     // labelImages[0] = ctx.canvas.toDataURL('image/png');
     // console.log(labelImages[0]);
 
+    var elements = [];
+
     // cater for rotation possibly cutting images off
     var methods = {
         setup: function () {
         },
+
+        cleanup: function () {
+            _.map(elements, function (el) {
+                el.remove();
+            });
+            elements = [];
+        },
+
         write: function (opts) {
             var group = opts.group;
             var radius = opts.radius;
 
+            var rotationVariance = 10;
             var variation = 0;
-            var yOffset = -radius + 18;
+            var yOffset = -radius * 0.75;
             var xOffset = -3;
             var x = Math.round(opts.x + Math.random() * variation - variation / 2 + xOffset);
             var y = Math.round(opts.y + Math.random() * variation - variation / 2 + yOffset);
 
             var label = this.addLayer(null, 'Label');
+            var isFlipped = x > canvasWidth / 2;
             label.setAttribute('style', [
                 'left:' + x + 'px',
                 'top:' + y + 'px',
@@ -35,11 +46,14 @@ function Labeler (opts) {
             ].join(';'));
 
             var labelContainer = this.addLayer(label, 'Label-rotate');
+            labelContainer.setAttribute('style', [
+                'transform: rotate(' + Math.round(Math.random() * rotationVariance - rotationVariance / 2) + 'deg)',
+            ].join(';'));
 
 
-            var labelBackground = this.addLayer(label, 'LabelText-background');
+            var labelBackground = this.addLayer(labelContainer, 'LabelText-background' + (isFlipped ? ' LabelText-background--flip' : ''));
 
-            var labelText = this.addLayer(label, 'LabelText');
+            var labelText = this.addLayer(labelContainer, 'LabelText' + (isFlipped ? ' LabelText--flip' : ''));
 
             this.addLayer(labelText, 'LabelText-name', group.name);
 
@@ -55,7 +69,9 @@ function Labeler (opts) {
 
             this.createInteractionLayer(opts.x, opts.y, radius, label);
 
+            elements.push(label);
             outputEl.appendChild(label);
+
         },
 
         createInteractionLayer: function (x, y, radius, label) {
@@ -76,7 +92,7 @@ function Labeler (opts) {
             hitlayer.addEventListener('mouseout', function (e) {
                 label.setAttribute('class', 'Label Label--hide');
             });
-
+            elements.push(hitlayer);
             // hitlayer.addEventListener('touchstart', function (e) {
             //
             //     label.setAttribute('class', 'Label Label--show');
@@ -144,6 +160,7 @@ function Labeler (opts) {
 
     return {
         write: methods.write,
+        cleanup: methods.cleanup,
     };
 }
 

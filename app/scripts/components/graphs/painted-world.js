@@ -163,11 +163,21 @@ function shuffle (array) {
         array[j] = temp
     }
 }
+var INTERACTION_OFFSET_Y = 70;
 
 const PaintedWorld = Vue.component('painted-world', {
 
     template: `
-        <div class="painted-world"></div>
+        <div class="Painting">
+            <div class="js-painted-world">
+            <button class="Button Button--reset js-reset">
+                Paint another
+            </button>
+            <button class="Button Button--download js-download">
+                Download
+            </button>
+            </div>
+        </div>
     `,
     props: [
         'data',
@@ -178,7 +188,7 @@ const PaintedWorld = Vue.component('painted-world', {
             graphId: generateUUID(),
             ctx: null,
             labelCtx: null,
-            // offscreenCtx: null,
+            previewCtx: null,
             images: {
                 paintMasks: [],
                 invertedPaintMasks: [],
@@ -200,7 +210,14 @@ const PaintedWorld = Vue.component('painted-world', {
             img.src = '/images/' + path;
             return deferred.promise;
         },
+
+        reset: function () {
+            this.createLayout();
+            this.paint();
+        },
+
         paint: function () {
+            this.labeler.cleanup();
             var ctx = this.ctx;
             var width = this.width;
             var height = this.height
@@ -211,18 +228,22 @@ const PaintedWorld = Vue.component('painted-world', {
             var colorIndex = Math.floor(Math.random() * this.images.colorThemes.length);
             var colorTheme = this.images.colorThemes[colorIndex];
             console.log('nodes', nodes.length);
-
+            var canvasTheme = this.images.canvases[Math.floor(Math.random() * this.images.canvases.length)];
             var count = nodes.length;
             var onCompletePaint = function () {
-                if (--count <= 0) {
-                    ctx.globalCompositeOperation = 'multiply';
-                    ctx.drawImage(this.images.canvases[Math.floor(Math.random() * this.images.canvases.length)], 0, 0, this.width, this.height);
-                    ctx.globalCompositeOperation = 'source-over';
-                }
+                // if (--count <= 0) {
+                //     ctx.globalCompositeOperation = 'multiply';
+                //     ctx.drawImage(canvasTheme, 0, 0, this.width, this.height);
+                //     ctx.globalCompositeOperation = 'source-over';
+                // }
             }.bind(this);
+
+            // draw canvas at start so it's not so empty while things process
+            this.ctx.drawImage(canvasTheme, 0, 0, this.width, this.height);
 
             for (i = 0; i < nodes.length; i++) {
                 var d = nodes[i];
+                setTimeout(function (d) {
                 this.painter.paint(
                     {
                         cx: d.x,
@@ -240,148 +261,42 @@ const PaintedWorld = Vue.component('painted-world', {
                         percent: d.percent,
                     },
                     x: d.x,
-                    y: d.y,
+                    y: d.y - INTERACTION_OFFSET_Y,
                     radius: d.r,
                 });
+            }.bind(this), Math.random() * 2000, d);
                 console.log('loading', Math.floor((i + 1) / nodes.length  * 100));
             }
-            // ctx.fill();
 
-            // ctx.save();
-            // ctx.globalCompositeOperation = 'source-atop';
-            // ctx.drawImage(backgroundImages[0], 0, 0, width, height);
-            // ctx.globalCompositeOperation = 'source-over';
-            // // ctx.restore();
-            //
-            // ctx.shadowColor = 'rgba(0,0,0,0.6)';
-            // ctx.shadowBlur = 15
-            // ctx.shadowOffsetX = 0;
-            // ctx.shadowOffsetY = 0;
-            // ctx.globalCompositeOperation = 'source-atop';
-            //
-            // for (i = 0; i < nodes.length; i++) {
-            //     var d = nodes[i];
-            //     var cx = d.x;
-            //     var cy = d.y;
-            //     var paintMask = this.images.invertedPaintMasks[0];
-            //     // ctx.moveTo(cx, cy);
-            //     // ctx.arc(cx, cy, d.r, 0, Math.PI * 2);
-            //     var radius = d.r;
-            //     var diameter = radius * 2;
-            //     ctx.drawImage(paintMask, cx - radius, cy - radius, diameter, diameter);
-            // }
-            // ctx.restore();
-
-            // ctx.save();
-
-            // ctx.restore();
-
-            // this.speckleCanvas(colorTheme);
+            this.speckleCanvas(colorTheme);
         },
 
         speckleCanvas: function (colorTheme) {
             var numSplatters = Math.floor(Math.random() * 40) + 5;
             for (var i = 0; i < numSplatters; i++) {
+                var size = Math.random() * 6 + 1;
+
                 this.painter.paint(
                     {
                         cx: Math.random() * this.width,
                         cy: Math.random() * this.height,
-                        radius: Math.random() * 8 + 1,
+                        radius: size,
                         colorTheme: colorTheme,
-                        opacity: Math.random() * 0.3 + 0.1,
+                        opacity: size < 3
+                            ? Math.random() * 0.3 + 0.5
+                            : Math.random() * 0.3 + 0.1,
                     }
                 );
                 // console.log('loading', Math.floor((i + 1) / nodes.length  * 100));
             }
         },
 
-        setup: function () {
+        createLayout: function () {
             var PACK_PADDING = 30;
-            var PADDING = 20;
+            var PADDING = 80;
+            var width = this.width;
+            var height = this.height;
             var groups = organiseCategories(aggregateService.data, false);
-
-            var target = this.target;
-            var width = 700;//document.documentElement.clientWidth - margin.left - margin.right;
-            var height = 700;
-
-            var dom = d3.select('.painted-world')
-                .append('canvas')
-                    .attr({
-                        width: width,
-                        height: height,
-                    })
-                    .node().getContext('2d');
-            var labelEl = d3.select('.painted-world')
-                .append('div')
-                    .attr({
-                    })
-                    .style({
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        border: '1px solid #000',
-                        width: width + 'px',
-                        height: height + 'px',
-                        // left: 200,
-                        // display: 'none',
-                    })
-                    .node();
-            var labelInteractionEl = d3.select('.painted-world')
-                .append('div')
-                    .attr({
-                    })
-                    .style({
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        border: '1px solid #0c0',
-                        width: width + 'px',
-                        height: height + 'px',
-                        // left: 200,
-                    })
-                    .node();
-
-            var offscreenEl = d3.select('.painted-world')
-                .append('div')
-                .style({
-                    position: 'absolute',
-                    top: 0,
-                    left: width + 'px',
-                    // display: 'none',
-                    // border: '1px solid #000',
-                    // left: 200,
-                });
-            //     .append('canvas')
-            //         .attr({
-            //             width: width,
-            //             height: height,
-            //         })
-            //         .style({
-            //             position: 'absolute',
-            //             top: 0,
-            //             // border: '1px solid #000',
-            //             // left: 200,
-            //         })
-            //         .node().getContext('2d');
-            var offscreenLabelCtx = d3.select('.painted-world')
-                .append('canvas')
-                    .attr({
-                        width: width,
-                        height: height,
-                    })
-                    .style({
-                        position: 'absolute',
-                        bottom: 0,
-                        // border: '1px solid #000',
-                        // left: 200,
-                    })
-                    .node().getContext('2d');
-                // .append('dom')
-                //     .attr('width', width + margin.left + margin.right)
-                //     .attr('height', height + margin.top + margin.bottom)
-                // .append('g')
-                //     .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-
             var data = {
                 name : 'root',
                 children : _.map(groups, function(group, i) {
@@ -410,8 +325,6 @@ const PaintedWorld = Vue.component('painted-world', {
             // remove root
             _.remove(nodes, { name: 'root' });
 
-            var getColor = d3.scale.category10();
-
             // offset the circle within padded area for more randomness
             var getPosition = function (d, axis) {
                 var trig = Math.sin;
@@ -423,6 +336,113 @@ const PaintedWorld = Vue.component('painted-world', {
                 node.x = getPosition(node, 'x') + PADDING;
                 node.y = getPosition(node, 'y') + PADDING;
             });
+            this.nodes = nodes;
+        },
+
+        setup: function () {
+
+            var target = this.target;
+            var width = 700;//document.documentElement.clientWidth - margin.left - margin.right;
+            var height = 700;
+
+            var paintedWorld = d3.select('.js-painted-world');
+            var previewCtx = paintedWorld
+                .append('canvas')
+                    .attr({
+                        width: width,
+                        height: height,
+                    })
+                    .style({
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                    })
+                    .node().getContext('2d');
+            var dom = paintedWorld
+                .append('canvas')
+                    .attr({
+                        width: width,
+                        height: height,
+                    })
+                    .style({
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                    })
+                    .node().getContext('2d');
+
+            var labelEl = paintedWorld
+                .append('div')
+                    .attr({
+                    })
+                    .style({
+                        position: 'absolute',
+                        top: INTERACTION_OFFSET_Y + 'px',
+                        left: 0,
+                        border: '1px solid #000',
+                        width: width + 'px',
+                        height: height + 'px',
+                        // left: 200,
+                        // display: 'none',
+                    })
+                    .node();
+            var labelInteractionEl = paintedWorld
+                .append('div')
+                    .attr({
+                    })
+                    .style({
+                        position: 'absolute',
+                        top: INTERACTION_OFFSET_Y + 'px',
+                        left: 0,
+                        border: '1px solid #0c0',
+                        width: width + 'px',
+                        height: (height-INTERACTION_OFFSET_Y) + 'px',
+                        // left: 200,
+                    })
+                    .node();
+
+            var offscreenEl = paintedWorld
+                .append('div')
+                .style({
+                    position: 'absolute',
+                    top: 0,
+                    left: width + 'px',
+                    display: 'none',
+                    // border: '1px solid #000',
+                    // left: 200,
+                });
+            //     .append('canvas')
+            //         .attr({
+            //             width: width,
+            //             height: height,
+            //         })
+            //         .style({
+            //             position: 'absolute',
+            //             top: 0,
+            //             // border: '1px solid #000',
+            //             // left: 200,
+            //         })
+            //         .node().getContext('2d');
+            var offscreenLabelCtx = paintedWorld
+                .append('canvas')
+                    .attr({
+                        width: width,
+                        height: height,
+                    })
+                    .style({
+                        position: 'absolute',
+                        bottom: 0,
+                        display: 'none',
+                        // border: '1px solid #000',
+                        // left: 200,
+                    })
+                    .node().getContext('2d');
+                // .append('dom')
+                //     .attr('width', width + margin.left + margin.right)
+                //     .attr('height', height + margin.top + margin.bottom)
+                // .append('g')
+                //     .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
 
             // dom.selectAll('.group')
             //     .data(nodes)
@@ -447,8 +467,9 @@ const PaintedWorld = Vue.component('painted-world', {
             this.width = width;
             this.height = height;
             this.ctx = dom;
+            this.previewCtx = previewCtx;
+            this.createLayout();
             // this.offscreenCtx = offscreenCtx;
-            this.nodes = nodes;
 
             this.painter = new Painter({
                 outputCtx: dom,
@@ -485,11 +506,12 @@ const PaintedWorld = Vue.component('painted-world', {
                 // this.loadImage('colors/color4.jpg'), // pure flat color for debug
 
                 // labels
-                this.loadImage('label/label1.png'),
-                this.loadImage('label/label2.png'),
-                this.loadImage('label/label3.png'),
-                this.loadImage('label/label4.png'),
-                this.loadImage('label/label5.png'),
+                // this.loadImage('label/label1.png'),
+                // this.loadImage('label/label2.png'),
+                // this.loadImage('label/label3.png'),
+                // this.loadImage('label/label4.png'),
+                // this.loadImage('label/label5.png'),
+                this.loadImage('label.png'),
 
                 // brushes
                 this.loadImage('brushes/outline01.png'),
@@ -520,7 +542,7 @@ const PaintedWorld = Vue.component('painted-world', {
                     for (; i < num; i++) {
                         _this.images.colorThemes.push(images[i]);
                     }
-                    var num = i + 5;
+                    var num = i + 1;
                     for (; i < num; i++) {
                         _this.images.labels.push('images/label.png');
                         // _this.images.labels.push(images[i]);
@@ -542,6 +564,10 @@ const PaintedWorld = Vue.component('painted-world', {
     mounted: function () {
         // var data = this.data;
         // console.log(data);
+        document.querySelector('.js-reset')
+            .addEventListener('mousedown', function (e) {
+                this.reset();
+            }.bind(this));
 
         this.loadAll();
     },
