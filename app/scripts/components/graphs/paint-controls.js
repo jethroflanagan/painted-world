@@ -46,7 +46,6 @@ var Options = Vue.component('paint-controls', {
     methods: {
         runCb: function (cb) {
             return function () {
-                console.log(this.isEnabled);
                 if (this.isEnabled) {
                     cb();
                 }

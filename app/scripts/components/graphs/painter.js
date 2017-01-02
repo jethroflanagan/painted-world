@@ -26,7 +26,7 @@ function Painter (opts) {
                         height: 1,
                     })
                     .style({
-                        // filter: 'hue-rotate(100deg)': 
+                        // filter: 'hue-rotate(100deg)':
                         // position: 'absolute',
                         // top: 0,
                         // border: '1px solid #000',
@@ -56,6 +56,7 @@ function Painter (opts) {
             var diameter = radius * 2;
             var x = brush.cx - radius;
             var y = brush.cy - radius;
+            var hueShift = brush.hueShift;
 
             var brushIndex = Math.floor(Math.random() * brushMasks.length);
 
@@ -90,6 +91,10 @@ function Painter (opts) {
                 // ctx.restore();
                 // ctx.save();
 
+                // hue shifting (only in FF and Chrome, ignored otherwise)
+                if (hueShift) {
+                    ctx.filter = 'hue-rotate(' + hueShift + 'deg)';
+                }
                 // color
                 ctx.globalCompositeOperation = 'source-atop';
                 // var scale = 1.5;
@@ -98,6 +103,7 @@ function Painter (opts) {
 
                 ctx.drawImage(colorTheme, colorX, colorY, colorTheme.naturalWidth, colorTheme.naturalHeight);
                 ctx.globalCompositeOperation = 'source-over';
+                ctx.filter = 'none';
                 return this.saveLayer(ctx);
             }.bind(this))
 

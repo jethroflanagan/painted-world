@@ -182,7 +182,8 @@
     &-field[type="checkbox"] {
         // width: 100px;
         //opacity: 0.5;
-        appearance: none;
+        display: none;
+        // appearance: none;
         &:hover + .Checkbox-box,
         &:focus + .Checkbox-box,
         &:active + .Checkbox-box {
@@ -212,7 +213,7 @@
         border-radius: 3px;
         // background:url(check_radio_sheet.png) left top no-repeat;
         background: rgba(0, 0, 0, 0.1);
-        mix-blend-mode: multiply;
+        // mix-blend-mode: multiply;
         transition:
             box-shadow .3s ease-out,
             background .3s ease-out;
@@ -248,6 +249,14 @@
             background: #bbb;
         }
     }
+    &:hover &-box {
+        background: rgba(0, 0, 0, 0.2);
+        box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.3);
+    }
+    &:hover &-label {
+        color: rgba(0,0,0,0.9);
+    }
+
     &--messy {
         left: 160px;
         top: 30px;

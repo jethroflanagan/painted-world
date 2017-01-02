@@ -250,7 +250,9 @@ var PaintedWorld = Vue.component('painted-world', {
             ctx.clearRect(0, 0, width, height);
             var i = 0;
             var colorIndex = Math.floor(Math.random() * this.images.colorThemes.length);
-            var colorTheme = this.images.colorThemes[colorIndex];
+            var colorTheme = this.images.colorThemes[colorIndex].image;
+            var hues = this.images.colorThemes[colorIndex].hues;
+            var hueShift = hues[Math.floor(Math.random() * hues.length)];
             // console.log('nodes', nodes.length);
             var canvasTheme = this.images.canvases[Math.floor(Math.random() * this.images.canvases.length)];
             var count = nodes.length;
@@ -276,6 +278,7 @@ var PaintedWorld = Vue.component('painted-world', {
                                 cy: d.y,
                                 radius: d.r,
                                 colorTheme: colorTheme,
+                                hueShift: hueShift,
                             },
                             onCompletePaint
                         );
@@ -295,11 +298,11 @@ var PaintedWorld = Vue.component('painted-world', {
                 // console.log('loading', Math.floor((i + 1) / nodes.length  * 100));
             }
             if (this.isMessy) {
-                this.speckleCanvas(colorTheme);
+                this.speckleCanvas(colorTheme, hueShift);
             }
         },
 
-        speckleCanvas: function (colorTheme) {
+        speckleCanvas: function (colorTheme, hueShift) {
             var numSplatters = Math.floor(Math.random() * 40) + 5;
             for (var i = 0; i < numSplatters; i++) {
                 setTimeout(function () {
@@ -310,6 +313,7 @@ var PaintedWorld = Vue.component('painted-world', {
                             cx: Math.random() * this.width,
                             cy: Math.random() * this.height,
                             radius: size,
+                            hueShift: hueShift,
                             colorTheme: colorTheme,
                             opacity: size < 3
                                 ? Math.random() * 0.3 + 0.5
@@ -380,18 +384,6 @@ var PaintedWorld = Vue.component('painted-world', {
             var overlayContainer = paintedWorld.select('.js-overlay');
             var offscreenContainer = paintedWorld.select('.js-offscreen');
 
-            // var previewCtx = canvasContainer
-            //     .append('canvas')
-            //         .attr({
-            //             width: width,
-            //             height: height,
-            //         })
-            //         .style({
-            //             position: 'absolute',
-            //             top: 0,
-            //             left: 0,
-            //         })
-            //         .node().getContext('2d');
             var dom = canvasContainer
                 .append('canvas')
                     .attr({
@@ -404,6 +396,20 @@ var PaintedWorld = Vue.component('painted-world', {
                         left: 0,
                     })
                     .node().getContext('2d');
+
+            // var previewCtx = canvasContainer
+            //     .append('canvas')
+            //         .attr({
+            //             width: width,
+            //             height: height,
+            //         })
+            //         .style({
+            //             position: 'absolute',
+            //             top: 0,
+            //             left: 0,
+            //             'mix-blend-mode': 'multiply',
+            //         })
+            //         .node().getContext('2d');
 
             var labelEl = overlayContainer
                 .append('div')
@@ -567,14 +573,32 @@ var PaintedWorld = Vue.component('painted-world', {
                 .then(function (images) {
                     // console.log('done', images);
                     var i = 0;
-                    for (i = 0; i < 4; i++) {
+                    var incr = 4;
+                    for (i = 0; i < incr; i++) {
                         _this.images.canvases.push(images[i]);
                     }
-                    var num = i + 3;
+                    incr = 3;
+                    var num = i + incr;
                     for (; i < num; i++) {
-                        _this.images.colorThemes.push(images[i]);
+                        var hues = [];
+                        switch (i - num + incr) {
+                            case 0:
+                                hues = [0, -70, 180];
+                                break;
+                            case 1:
+                                hues = [0, -130, -65];
+                                break;
+                            case 2:
+                                hues = [0, -180, 20];
+                                break;
+                        }
+                        _this.images.colorThemes.push({
+                            image: images[i],
+                            hues: hues,
+                        });
                     }
-                    var num = i + 1;
+                    incr = 1;
+                    var num = i + incr;
                     for (; i < num; i++) {
                         _this.images.labels.push('images/label.png');
                         // _this.images.labels.push(images[i]);
