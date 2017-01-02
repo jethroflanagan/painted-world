@@ -1,4 +1,4 @@
-.Painting {
+.PaintedWorld {
     position: relative;
     width: 900px;
     height: 800px;
@@ -172,7 +172,6 @@
         display: inline-block;
         font-family: 'Titillium Web';
         line-height: 20px;
-        transform: rotate(-5deg) translate(-2px, -8px);
         color: rgba(0,0,0,0.6);
         transition: color .3s ease-out;
     }
@@ -205,7 +204,6 @@
         }
     }
     &-box {
-        transform: rotate(3deg);// translate(3px, -8px);
         display:inline-block;
         width: 20px;
         height: 20px;
@@ -260,5 +258,49 @@
     &--messy {
         left: 160px;
         top: 30px;
+        .Checkbox-label {
+            transform: rotate(-5deg) translate(-2px, -8px);
+        }
+        .Checkbox-box {
+            transform: rotate(3deg);// translate(3px, -8px);
+        }
+    }
+    &--hue {
+        left: 200px;
+        top: 50px;
+        .Checkbox-label {
+            transform: rotate(-2deg) translate(-2px, -6px);
+        }
+        .Checkbox-box {
+            transform: rotate(-96deg);// translate(3px, -8px);
+        }
+    }
+}
+
+.Log {
+    position: absolute;
+    top: 0;
+    left: 900px;
+    right: 0;
+    padding: 10px;
+}
+
+.Preview {
+    border: 1px solid #555;
+    padding: 3px;
+    display: inline-block;
+    margin: 3px;
+    border-radius: 3px;
+    background: #444;
+    &-image {
+        width: 200px;
+        border-radius: 3px;
+    }
+    &-stats {
+        padding: 5px;
+        text-align: center;
+        font-family: sans-serif;
+        white-space: nowrap;
+        color: #fff;
     }
 }

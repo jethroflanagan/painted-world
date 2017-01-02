@@ -20,6 +20,16 @@ var Options = Vue.component('paint-controls', {
                 <span class="Checkbox-box"></span>
                 <span class="Checkbox-label">Messy</span>
             </label>
+            <label class="Checkbox Checkbox--hue"
+                for="hue"
+                :class="{ 'Checkbox--disabled': !isEnabled }"
+            >
+                <input class="Checkbox-field" type="checkbox" id="hue"
+                    @click="updateHue"
+                    checked>
+                <span class="Checkbox-box"></span>
+                <span class="Checkbox-label">More colours</span>
+            </label>
         </div>
     `,
     props: [
@@ -53,6 +63,9 @@ var Options = Vue.component('paint-controls', {
         },
         updateMessy: function (e) {
             this.$emit('messy-updated', e.target.checked);
+        },
+        updateHue: function (e) {
+            this.$emit('hue-updated', e.target.checked);
         },
     },
     mounted: function () {
