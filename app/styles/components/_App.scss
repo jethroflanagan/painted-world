@@ -97,7 +97,7 @@
     padding: 10px 20px;
     border-radius: 100px;
     font-family: 'Titillium Web';
-    font-weight: 300;
+    font-weight: 700;
     font-size: 1em;
     border: none;
     background: rgba(0, 0, 0, 0.1);
@@ -105,16 +105,23 @@
     // box-shadow: inset 1px 1px 20px rgba(0, 0, 0, 0.2);
     box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.2);
     outline: none;
-    cursor: pointer;
     z-index: 2;
     transition:
+        opacity .8s ease-out,
         color 0.3s ease-out,
         box-shadow 0.3s ease-out;
-    &:hover {
-        box-shadow: inset 0 0 1px rgba(0, 0, 0, 0.4);
-        color: rgba(0,0,0,0.9);
+    &:not(:disabled) {
+        cursor: pointer;
+        &:hover {
+            box-shadow: inset 0 0 1px rgba(0, 0, 0, 0.4);
+            color: rgba(0,0,0,0.9);
+        }
     }
-
+    &:disabled {
+        opacity: 0;
+        transition:
+            opacity .3s ease-out;
+    }
     &--reset {
         top: 20px;
         left: 20px;

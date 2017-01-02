@@ -164,8 +164,8 @@ function shuffle (array) {
     }
 }
 var INTERACTION_OFFSET_Y = 70;
-
-const PaintedWorld = Vue.component('painted-world', {
+var PAINT_TIME = 2000;
+var PaintedWorld = Vue.component('painted-world', {
 
     template: `
         <div class="Painting">
@@ -216,7 +216,15 @@ const PaintedWorld = Vue.component('painted-world', {
             this.paint();
         },
 
+        setInteractionAllowed: function (isAllowed) {
+            document.querySelector('.js-reset')
+                .disabled = !isAllowed;
+            document.querySelector('.js-download')
+                .disabled = !isAllowed;
+        },
+
         paint: function () {
+            this.setInteractionAllowed(false);
             this.labeler.cleanup();
             var ctx = this.ctx;
             var width = this.width;
@@ -231,11 +239,12 @@ const PaintedWorld = Vue.component('painted-world', {
             var canvasTheme = this.images.canvases[Math.floor(Math.random() * this.images.canvases.length)];
             var count = nodes.length;
             var onCompletePaint = function () {
-                // if (--count <= 0) {
+                if (--count <= 0) {
                 //     ctx.globalCompositeOperation = 'multiply';
                 //     ctx.drawImage(canvasTheme, 0, 0, this.width, this.height);
                 //     ctx.globalCompositeOperation = 'source-over';
-                // }
+                    this.setInteractionAllowed(true);
+                }
             }.bind(this);
 
             // draw canvas at start so it's not so empty while things process
@@ -243,28 +252,30 @@ const PaintedWorld = Vue.component('painted-world', {
 
             for (i = 0; i < nodes.length; i++) {
                 var d = nodes[i];
-                setTimeout(function (d) {
-                this.painter.paint(
-                    {
-                        cx: d.x,
-                        cy: d.y,
-                        radius: d.r,
-                        colorTheme: colorTheme,
-                    },
-                    onCompletePaint
-                );
+                setTimeout((function (d) {
+                    return function () {
+                        this.painter.paint(
+                            {
+                                cx: d.x,
+                                cy: d.y,
+                                radius: d.r,
+                                colorTheme: colorTheme,
+                            },
+                            onCompletePaint
+                        );
 
-                this.labeler.write({
-                    group: {
-                        name: d.name,
-                        amount: d.size,
-                        percent: d.percent,
-                    },
-                    x: d.x,
-                    y: d.y - INTERACTION_OFFSET_Y,
-                    radius: d.r,
-                });
-            }.bind(this), Math.random() * 2000, d);
+                        this.labeler.write({
+                            group: {
+                                name: d.name,
+                                amount: d.size,
+                                percent: d.percent,
+                            },
+                            x: d.x,
+                            y: d.y - INTERACTION_OFFSET_Y,
+                            radius: d.r,
+                        });
+                    }
+                })(d).bind(this), Math.random() * PAINT_TIME);
                 console.log('loading', Math.floor((i + 1) / nodes.length  * 100));
             }
 
@@ -274,19 +285,21 @@ const PaintedWorld = Vue.component('painted-world', {
         speckleCanvas: function (colorTheme) {
             var numSplatters = Math.floor(Math.random() * 40) + 5;
             for (var i = 0; i < numSplatters; i++) {
-                var size = Math.random() * 6 + 1;
+                setTimeout(function () {
+                    var size = Math.random() * 6 + 1;
 
-                this.painter.paint(
-                    {
-                        cx: Math.random() * this.width,
-                        cy: Math.random() * this.height,
-                        radius: size,
-                        colorTheme: colorTheme,
-                        opacity: size < 3
-                            ? Math.random() * 0.3 + 0.5
-                            : Math.random() * 0.3 + 0.1,
-                    }
-                );
+                    this.painter.paint(
+                        {
+                            cx: Math.random() * this.width,
+                            cy: Math.random() * this.height,
+                            radius: size,
+                            colorTheme: colorTheme,
+                            opacity: size < 3
+                                ? Math.random() * 0.3 + 0.5
+                                : Math.random() * 0.3 + 0.1,
+                        }
+                    );
+                }.bind(this), Math.random() * PAINT_TIME / 2);
                 // console.log('loading', Math.floor((i + 1) / nodes.length  * 100));
             }
         },
@@ -379,7 +392,7 @@ const PaintedWorld = Vue.component('painted-world', {
                         position: 'absolute',
                         top: INTERACTION_OFFSET_Y + 'px',
                         left: 0,
-                        border: '1px solid #000',
+                        // border: '1px solid #000',
                         width: width + 'px',
                         height: height + 'px',
                         // left: 200,
@@ -394,7 +407,7 @@ const PaintedWorld = Vue.component('painted-world', {
                         position: 'absolute',
                         top: INTERACTION_OFFSET_Y + 'px',
                         left: 0,
-                        border: '1px solid #0c0',
+                        // border: '1px solid #0c0',
                         width: width + 'px',
                         height: (height-INTERACTION_OFFSET_Y) + 'px',
                         // left: 200,
