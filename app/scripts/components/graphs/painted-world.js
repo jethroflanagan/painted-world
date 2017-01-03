@@ -2,7 +2,7 @@
 import { aggregateService } from '../../service/aggregate-service';
 import { Painter } from './painter';
 import { Labeler } from './labeler';
-import { Controls } from './paint-controls';
+import { PaintControls } from './paint-controls';
 
 const generateUUID = () => {
     var d = new Date().getTime();
@@ -189,7 +189,7 @@ var PaintedWorld = Vue.component('painted-world', {
     `,
     props: [
         'data',
-        'target',
+        'images',
     ],
     data() {
         return {
@@ -198,16 +198,17 @@ var PaintedWorld = Vue.component('painted-world', {
             labelCtx: null,
             // previewCtx: null,
             canInteract: false,
-            images: {
-                paintMasks: [],
-                invertedPaintMasks: [],
-                labels: [],
-                colorThemes: [],
-                canvases: [],
-            },
+            // images: {
+            //     paintMasks: [],
+            //     invertedPaintMasks: [],
+            //     labels: [],
+            //     colorThemes: [],
+            //     canvases: [],
+            // },
             painter: null,
             isMessy: true,
             isHueShiftAllowed: true,
+            percentLoaded: 0,
         };
     },
     methods: {
@@ -218,17 +219,6 @@ var PaintedWorld = Vue.component('painted-world', {
         onHueUpdated: function (val) {
             console.log('isHueShiftAllowed', val);
             this.isHueShiftAllowed = val;
-        },
-
-        loadImage: function (path, cb) {
-            var deferred = Q.defer();
-            var img = new Image();   // Create new img element
-            img.addEventListener("load", function() {
-                // cb();
-                deferred.resolve(img);
-            }, false);
-            img.src = '/images/' + path;
-            return deferred.promise;
         },
 
         reset: function () {
@@ -508,38 +498,11 @@ var PaintedWorld = Vue.component('painted-world', {
                         // left: 200,
                     })
                     .node().getContext('2d');
-                // .append('dom')
-                //     .attr('width', width + margin.left + margin.right)
-                //     .attr('height', height + margin.top + margin.bottom)
-                // .append('g')
-                //     .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-
-
-            // dom.selectAll('.group')
-            //     .data(nodes)
-            //     .enter()
-            //         .append('circle')
-            //         // .style('transform', function (d) {
-            //         //     return 'translate(' + d.x + 'px ' + d.y + 'px)';
-            //         // })
-            //         .attr({
-            //             cx: function (d, i) {
-            //                 return getPosition(d,'x');
-            //             },
-            //             cy: function (d, i) {
-            //                 return getPosition(d, 'y')
-            //             },
-            //             r: function (d) { return d.r },
-            //             fill: function (d, i) {
-            //                 return getColor(i);
-            //             },
-            //         })
 
             this.width = width;
             this.height = height;
             this.ctx = dom;
             // this.previewCtx = previewCtx;
-            this.createLayout();
             // this.offscreenCtx = offscreenCtx;
 
             this.painter = new Painter({
@@ -560,100 +523,15 @@ var PaintedWorld = Vue.component('painted-world', {
             });
         },
 
-
-        loadAll: function () {
-            var _this = this;
-            var promise = Q.all([
-                // canvases
-                this.loadImage('canvases/canvas1.jpg'),
-                this.loadImage('canvases/canvas2.jpg'),
-                this.loadImage('canvases/canvas3.jpg'),
-                this.loadImage('canvases/canvas4.jpg'),
-
-                // themes
-                this.loadImage('colors/color1.jpg'),
-                this.loadImage('colors/color2.jpg'),
-                this.loadImage('colors/color3.jpg'),
-                // this.loadImage('colors/color4.jpg'), // pure flat color for debug
-
-                // labels
-                // this.loadImage('label/label1.png'),
-                // this.loadImage('label/label2.png'),
-                // this.loadImage('label/label3.png'),
-                // this.loadImage('label/label4.png'),
-                // this.loadImage('label/label5.png'),
-                this.loadImage('label.png'),
-
-                // brushes
-                this.loadImage('brushes/outline01.png'),
-                this.loadImage('brushes/outline02.png'),
-                this.loadImage('brushes/outline03.png'),
-                this.loadImage('brushes/outline04.png'),
-                this.loadImage('brushes/outline05.png'),
-                this.loadImage('brushes/outline06.png'),
-                this.loadImage('brushes/outline07.png'),
-                this.loadImage('brushes/outline08.png'),
-                this.loadImage('brushes/outline09.png'),
-                this.loadImage('brushes/outline10.png'),
-                this.loadImage('brushes/outline11.png'),
-                this.loadImage('brushes/outline12.png'),
-                this.loadImage('brushes/outline13.png'),
-                this.loadImage('brushes/outline14.png'),
-                this.loadImage('brushes/outline15.png'),
-                this.loadImage('brushes/outline16.png'),
-
-            ])
-                .then(function (images) {
-                    // console.log('done', images);
-                    var i = 0;
-                    var incr = 4;
-                    for (i = 0; i < incr; i++) {
-                        _this.images.canvases.push(images[i]);
-                    }
-                    incr = 3;
-                    var num = i + incr;
-                    for (; i < num; i++) {
-                        var hues = [];
-                        switch (i - num + incr) {
-                            case 0:
-                                hues = [0, -70, 180];
-                                break;
-                            case 1:
-                                hues = [0, -130, -65];
-                                break;
-                            case 2:
-                                hues = [0, 180, 20];
-                                break;
-                        }
-                        _this.images.colorThemes.push({
-                            image: images[i],
-                            hues: hues,
-                        });
-                    }
-                    incr = 1;
-                    var num = i + incr;
-                    for (; i < num; i++) {
-                        _this.images.labels.push('images/label.png');
-                        // _this.images.labels.push(images[i]);
-                    }
-                    for (; i < images.length; i++) {
-                        _this.images.paintMasks.push(images[i]);
-                    }
-                    return true;
-                })
-                .then(this.setup)
-                .then(this.paint)
-                .catch(function (e) {
-                    console.error(e);
-                });
-
-            return promise;
-        },
     },
     mounted: function () {
         // var data = this.data;
         // console.log(data);
-        this.loadAll();
+        // this.loadAll();
+
+        this.setup();
+        this.createLayout();
+        this.paint();
     },
 });
 

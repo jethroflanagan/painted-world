@@ -1,8 +1,8 @@
-import './../graphs/painted-world';
+import './../graphs/asset-loader';
 
 const GraphScreen = Vue.component('graph-screen', {
     template: `
-        <painted-world></painted-world>
+        <asset-loader></asset-loader>
     `,
     props: [
     ],

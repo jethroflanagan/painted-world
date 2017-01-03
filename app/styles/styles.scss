@@ -1,3 +1,6 @@
-@import "config/variables.scss";
 @import 'reset';
-@import 'components/App';
+@import 'base';
+
+@import "config/variables.scss";
+@import 'components/PaintedWorld';
+@import 'components/AssetLoader';

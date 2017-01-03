@@ -1,3 +1,7 @@
+.Painting {
+    // transform: scale(0.5) translate(-50%, -50%);
+
+}
 .PaintedWorld {
     position: relative;
     width: 900px;
@@ -256,7 +260,7 @@
     }
 
     &--messy {
-        left: 160px;
+        left: 180px;
         top: 30px;
         .Checkbox-label {
             transform: rotate(-5deg) translate(-2px, -8px);
@@ -266,8 +270,8 @@
         }
     }
     &--hue {
-        left: 200px;
-        top: 50px;
+        left: 260px;
+        top: 30px;
         .Checkbox-label {
             transform: rotate(-2deg) translate(-2px, -6px);
         }

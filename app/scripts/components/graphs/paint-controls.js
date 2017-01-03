@@ -1,6 +1,6 @@
 import { TextInput } from './text-input';
 
-var Options = Vue.component('paint-controls', {
+var PaintControls = Vue.component('paint-controls', {
     // inline style needs to be forced for text decoration to handle :visited for some reason
     template: `
         <div class="PaintControls" :class="{ 'PaintControls--disabled': !isEnabled }">
@@ -78,5 +78,5 @@ var Options = Vue.component('paint-controls', {
 });
 
 export {
-    Options,
+    PaintControls,
 }
