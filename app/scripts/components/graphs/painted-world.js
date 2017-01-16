@@ -19,6 +19,8 @@ const generateUUID = () => {
 };
 
 function organiseCategories (aggregate, isLimited) {
+    var OTHER_PERCENT = 0; // groups below this are moved into other
+    var OTHER_GROUP_NAME = 'Other'; // groups below this are moved into other
     // var groups = {
     //     'Housing & Utilities': ['Rental', 'Bond repayment', 'Home & garden', 'Home utilities & service'],
     //     'Food': ['Eating out & take outs', 'Groceries'],
@@ -77,45 +79,33 @@ function organiseCategories (aggregate, isLimited) {
     };
     // var now = moment();
     // TODO start of 12 months ago
-    var yearStart = +moment().subtract(12, 'months').startOf('year');
     var groups = {};
+    var categorize = function (groups, groupName, txn) {
+        if (txn.spendingGroupName === 'Transfers') {
+            return;
+        }
+        if (!groups.hasOwnProperty(groupName)) {
+            groups[groupName] = [txn];
+        }
+        else {
+            groups[groupName].push(txn);
+        }
+    };
 
     if (isLimited) {
         _.map(aggregate.transactions, function (txn) {
-            var group = categoryLookup[txn.categoryName];
-            if (txn.spendingGroupName === 'Transfers') {
-                return;
-            }
-            if (!group) {
-                group = 'Other';
+            var groupName = categoryLookup[txn.categoryName];
+            if (!groupName) {
+                groupName = OTHER_GROUP_NAME;
                 // return;
             }
-            if (txn.transactionDate < yearStart) {
-                return;
-            }
-            if (!groups.hasOwnProperty(group)) {
-                groups[group] = [txn];
-            }
-            else {
-                groups[group].push(txn);
-            }
+            categorize(groups, groupName, txn);
         });
     }
     else {
         _.map(aggregate.transactions, function (txn) {
-            var group = txn.categoryName;
-            if (txn.spendingGroupName === 'Transfers') {
-                return;
-            }
-            if (txn.transactionDate < yearStart) {
-                return;
-            }
-            if (!groups.hasOwnProperty(group)) {
-                groups[group] = [txn];
-            }
-            else {
-                groups[group].push(txn);
-            }
+            var groupName = txn.categoryName;
+            categorize(groups, groupName, txn);
         });
     }
 
@@ -123,25 +113,41 @@ function organiseCategories (aggregate, isLimited) {
 
     _.map(groups, function (group, name) {
         var total = _.reduce(group, function (subtotal, txn) {
-            if (txn.amount.debitOrCredit === 'debit')
+            if (txn.amount.debitOrCredit === 'debit') {
                 return subtotal + txn.amount.amount;
+            }
             return subtotal;
         }, 0);
         allGroupsTotal += total;
         groups[name] = {
+            name: name,
             total: total,
         };
     });
 
-    groups = _.filter(groups, function (group, name) {
-        group.name = name;
-        return group.total > 1;
-    });
-
-
     _.map(groups, function (group) {
         group.percent = Math.round(group.total / allGroupsTotal * 100);
+        if (group.percent <= OTHER_PERCENT) {
+            if (!groups.hasOwnProperty(OTHER_GROUP_NAME)) {
+                groups[OTHER_GROUP_NAME] = {
+                    name: OTHER_GROUP_NAME,
+                    total: group.total,
+                    percent: group.percent,
+                };
+            }
+            else {
+                groups[OTHER_GROUP_NAME].total += group.total;
+                groups[OTHER_GROUP_NAME].percent += group.percent;
+            }
+            delete groups[group.name];
+        }
     });
+
+    groups = _.filter(groups, function (group, name) {
+        // group.name = name;
+        return group.total > 0 || group.name === OTHER_GROUP_NAME;
+    });
+
     // _.map(groups, function (g) {
     //     console.log(g.name, '=', g.percent);
     // });
@@ -238,6 +244,12 @@ var PaintedWorld = Vue.component('painted-world', {
             this.canInteract = isAllowed;
         },
 
+        replacePainting: function (e) {
+            console.log(e.currentTarget.querySelector('.Preview-image'));
+            this.ctx.globalCompositeOperation = 'source-over';
+            this.ctx.drawImage(e.currentTarget.querySelector('.Preview-image'), 0, 0, this.width, this.height);
+        },
+
         paint: function () {
             this.setInteractionAllowed(false);
             this.labeler.cleanup();
@@ -268,7 +280,7 @@ var PaintedWorld = Vue.component('painted-world', {
                     // save to log
                     var imgData = this.ctx.canvas.toDataURL('image/png');
                     var container = d3.select('.js-log')
-                        .append('div')
+                        .insert('div', ':first-child')
                         .attr({
                             'class': 'Preview',
                         });
@@ -279,12 +291,14 @@ var PaintedWorld = Vue.component('painted-world', {
                             src: imgData,
                             'class': 'Preview-image',
                         });
-                    container
-                        .append('div')
-                        .attr({
-                            'class': 'Preview-stats',
-                        })
-                        .text('color: ' + (colorIndex+1) + ', hue: ' + hueShift + 'deg');
+                    // container
+                    //     .append('div')
+                    //     .attr({
+                    //         'class': 'Preview-stats',
+                    //     })
+                    //     .text('color: ' + (colorIndex+1) + ', hue: ' + hueShift + 'deg');
+                    
+                    container.node().addEventListener('mousedown', this.replacePainting);
                 }
             }.bind(this);
 
@@ -353,7 +367,7 @@ var PaintedWorld = Vue.component('painted-world', {
             var PADDING = 80;
             var width = this.width;
             var height = this.height;
-            var groups = organiseCategories(aggregateService.data, false);
+            var groups = organiseCategories(aggregateService.data, true);
             var data = {
                 name : 'root',
                 children : _.map(groups, function(group, i) {

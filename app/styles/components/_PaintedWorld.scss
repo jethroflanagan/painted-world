@@ -287,24 +287,30 @@
     left: 900px;
     right: 0;
     padding: 10px;
+    height: 800px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    box-sizing: border-box;
+    border-bottom: 1px solid #ccc;
 }
 
 .Preview {
-    border: 1px solid #555;
     padding: 3px;
     display: inline-block;
     margin: 3px;
     border-radius: 3px;
     background: #444;
+    cursor: pointer;
     &-image {
         width: 200px;
         border-radius: 3px;
+        vertical-align: bottom;
     }
-    &-stats {
-        padding: 5px;
-        text-align: center;
-        font-family: sans-serif;
-        white-space: nowrap;
-        color: #fff;
-    }
+    // &-stats {
+    //     padding: 5px;
+    //     text-align: center;
+    //     font-family: sans-serif;
+    //     white-space: nowrap;
+    //     color: #fff;
+    // }
 }
