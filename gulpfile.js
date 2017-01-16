@@ -1,28 +1,27 @@
 //initialize all of our variables
-var app, base, concat, directory, gulp, gutil, hostname, path, refresh, sass, uglify, imagemin, minifyCSS, del, browserSync, autoprefixer, gulpSequence, shell, sourceMaps, plumber;
-
 var autoPrefixBrowserList = ['last 2 version', 'safari 5', 'ie 8', 'ie 9', 'opera 12.1', 'ios 6', 'android 4'];
 
 //load all of our dependencies
 //add more here if you want to include more libraries
-gulp        = require('gulp');
-gutil       = require('gulp-util');
-concat      = require('gulp-concat');
-uglify      = require('gulp-uglify');
-sass        = require('gulp-sass');
-sourceMaps  = require('gulp-sourcemaps');
-imagemin    = require('gulp-imagemin');
-minifyCSS   = require('gulp-minify-css');
-browserSync = require('browser-sync');
-autoprefixer = require('gulp-autoprefixer');
-gulpSequence = require('gulp-sequence').use(gulp);
-shell       = require('gulp-shell');
-plumber     = require('gulp-plumber');
-watch       = require('gulp-watch');
-sourcemaps  = require('gulp-sourcemaps');
-babel       = require('gulp-babel');
-rollup      = require('gulp-rollup');
-rollupIncludePaths = require('rollup-plugin-includepaths');
+var gulp                = require('gulp');
+var gutil               = require('gulp-util');
+var concat              = require('gulp-concat');
+var uglify              = require('gulp-uglify');
+var rollupUglify        = require('rollup-plugin-uglify');
+var sass                = require('gulp-sass');
+var sourceMaps          = require('gulp-sourcemaps');
+var imagemin            = require('gulp-imagemin');
+var minifyCSS           = require('gulp-minify-css');
+var browserSync         = require('browser-sync');
+var autoprefixer        = require('gulp-autoprefixer');
+var gulpSequence        = require('gulp-sequence').use(gulp);
+var shell               = require('gulp-shell');
+var plumber             = require('gulp-plumber');
+var watch               = require('gulp-watch');
+var sourcemaps          = require('gulp-sourcemaps');
+var babel               = require('gulp-babel');
+var rollup              = require('gulp-rollup');
+var rollupIncludePaths  = require('rollup-plugin-includepaths');
 
 gulp.task('browserSync', function() {
     browserSync({
@@ -67,7 +66,8 @@ gulp.task('scripts', function() {
             plugins: [
                 rollupIncludePaths({
                     paths: ['app/js']
-                })
+                }),
+                uglify()
             ],
             entry: 'app/scripts/main.js',
         }))
@@ -75,12 +75,12 @@ gulp.task('scripts', function() {
             presets: ['es2015']
         }))
         .pipe(concat('app.js'))
+        // .pipe(uglify())
         .pipe(sourcemaps.write())
         .on('error', gutil.log)
         .pipe(gulp.dest('.dist/scripts'))
         .pipe(browserSync.reload({stream: true}));
 });
-
 
 gulp.task('styles', function() {
     //the initializer / master SCSS file, which will just be a file that imports everything
@@ -133,8 +133,10 @@ gulp.task('vendor', function() {
     //watch any and all HTML files and refresh when something changes
     return gulp.src('app/vendor/**/*.*')
         // .pipe(include())
-        .pipe(plumber())
-        .pipe(gulp.dest('.dist/vendor'))
+        // .pipe(plumber())
+        .pipe(concat('vendor.js'))
+        .pipe(uglify())
+        .pipe(gulp.dest('.dist/scripts'))
         .pipe(browserSync.reload({stream: true}))
         //catch errors
         .on('error', gutil.log);

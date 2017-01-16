@@ -84,14 +84,16 @@ var AssetLoader = Vue.component('asset-loader', {
         },
 
         loadImage: function (path, cb) {
-            var deferred = Q.defer();
             var img = new Image();   // Create new img element
-            img.addEventListener("load", function() {
-                if (cb) cb();
-                deferred.resolve(img);
-            }.bind(this), false);
+            var deferred = (function (resolve, reject) {
+                img.addEventListener("load", function() {
+                    if (cb) cb();
+                    resolve(img);
+                }.bind(this), false);
+            }).bind(this);
+            var promise = new Promise(deferred);
             img.src = './images/' + path;
-            return deferred.promise;
+            return promise;
         },
 
         trackProgress: function (numAssets, onUpdate) {
@@ -151,7 +153,7 @@ var AssetLoader = Vue.component('asset-loader', {
 
             var onProgress = this.trackProgress(imagesToLoad.length, this.onUpdateMain);
 
-            var promise = Q.all(
+            var promise = Promise.all(
                 _.map(imagesToLoad, function (path) {
                     return this.loadImage(path, onProgress);
                 }.bind(this))

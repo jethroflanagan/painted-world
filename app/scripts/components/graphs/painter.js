@@ -209,16 +209,18 @@ function Painter (opts) {
         },
 
         saveLayer: function (ctx, onSaved) {
-            var deferred = Q.defer();
             var layer = document.createElement('img');
             // document.querySelector('body').appendChild(layer);
-            layer.onload = function () {
-                deferred.resolve(layer);
-                // onSaved(layer);
-            };
+            var deferred = (function (resolve, reject) {
+                layer.onload = function () {
+                    resolve(layer);
+                    // onSaved(layer);
+                };
+            }).bind(this);
+            var promise = new Promise(deferred);
             layer.src = ctx.canvas.toDataURL('image/png');
 
-            return deferred.promise;
+            return promise;
         },
 
         reset: function (ctx) {
