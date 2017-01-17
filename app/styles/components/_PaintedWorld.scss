@@ -1,4 +1,8 @@
 .Painting {
+    $font: 'Titillium Web';
+    position: relative;
+    user-select: none;
+
     // transform: scale(0.5) translate(-50%, -50%);
     .PaintedWorld {
         position: relative;
@@ -41,9 +45,10 @@
     }
 
     .LabelText {
-        font-family: 'Titillium Web';
+        font-family: $font;
         position: absolute;
         width: 230px;
+        line-height: 1;
         transform: translate(calc(-50% + 78px), -100px);
         &--flip {
             transform: translate(calc(-50% + -73px), -100px);
@@ -87,7 +92,7 @@
         }
 
         &-background {
-            background-image: url(../images/label.png);
+            background-image: url(../images/painted-world/label.png);
             background-repeat: no-repeat;
             width: 289px;
             height: 150px;
@@ -112,11 +117,6 @@
         cursor: pointer;
     }
 
-    .Painting {
-        position: relative;
-        user-select: none;
-    }
-
     .PaintControls {
         display: block;
         position: relative;
@@ -125,11 +125,12 @@
         }
     }
 
-    .Button {
+    a.Button {
         position: absolute;
         padding: 10px 20px;
         border-radius: 100px;
-        font-family: 'Titillium Web';
+        font-family: $font;
+        text-transform: none;
         font-size: 1em;
         border: none;
         background: rgba(0, 0, 0, 0.08);
@@ -138,6 +139,8 @@
         box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.2);
         outline: none;
         line-height: 25px;
+        height: 45px;
+        box-sizing: border-box;
         transition:
             background .3s ease-out,
             color 0.3s ease-out,
@@ -187,7 +190,7 @@
 
         &-label {
             display: inline-block;
-            font-family: 'Titillium Web';
+            font-family: $font;
             line-height: 20px;
             color: rgba(0,0,0,0.6);
             transition: color .3s ease-out;
@@ -318,7 +321,7 @@
             left: 0;
             right: 0;
             text-decoration: none;
-            font-family: 'Titillium Web';
+            font-family: $font;
             text-align: center;
             &Text {
                 color: #fff;
@@ -334,7 +337,7 @@
                 opacity: 0;
                 transition: opacity 0.3s linear;
             }
-            &:hover &Text {
+            &:hover .Preview-downloadText {
                 opacity: 1;
             }
         }

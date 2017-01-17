@@ -74,7 +74,7 @@ gulp.task('scripts', function() {
         .pipe(babel({
             presets: ['es2015']
         }))
-        .pipe(concat('app.js'))
+        .pipe(concat('painted-world-app.js'))
         // .pipe(uglify())
         .pipe(sourcemaps.write())
         .on('error', gutil.log)
@@ -108,7 +108,7 @@ gulp.task('styles', function() {
                 //catch errors
                 .on('error', gutil.log)
                 //the final filename of our combined css file
-                .pipe(concat('styles.css'))
+                .pipe(concat('painted-world.css'))
                 //get our sources via sourceMaps
                 .pipe(sourceMaps.write())
                 //where to save our final, compressed css file
@@ -117,6 +117,24 @@ gulp.task('styles', function() {
                 .pipe(browserSync.reload({stream: true}));
 });
 
+gulp.task('styles:prod', function() {
+    //the initializer / master SCSS file, which will just be a file that imports everything
+    return gulp.src('app/styles/styles-prod.scss')
+                .pipe(sass({
+                      errLogToConsole: true,
+                      includePaths: [
+                          'app/styles/scss/'
+                      ]
+                }))
+                .pipe(autoprefixer({
+                   browsers: autoPrefixBrowserList,
+                   cascade:  true
+                }))
+                //the final filename of our combined css file
+                .pipe(concat('_painted-world.scss'))
+                .pipe(gulp.dest('.dist/styles'))
+                .pipe(browserSync.reload({stream: true}));
+});
 
 gulp.task('html', function() {
     //watch any and all HTML files and refresh when something changes
@@ -134,7 +152,25 @@ gulp.task('vendor', function() {
     return gulp.src('app/vendor/**/*.*')
         // .pipe(include())
         // .pipe(plumber())
-        .pipe(concat('vendor.js'))
+        .pipe(concat('painted-world-vendor.js'))
+        .pipe(uglify())
+        .pipe(gulp.dest('.dist/scripts'))
+        .pipe(browserSync.reload({stream: true}))
+        //catch errors
+        .on('error', gutil.log);
+});
+
+gulp.task('vendor:prod', function() {
+    //watch any and all HTML files and refresh when something changes
+    return gulp.src([
+            'app/vendor/custom-event-polyfill.js',
+            'app/vendor/moment.min.js',
+            'app/vendor/promise-polyfill.js',
+            'app/vendor/vue.min.js',
+        ])
+        // .pipe(include())
+        // .pipe(plumber())
+        .pipe(concat('painted-world-vendor.js'))
         .pipe(uglify())
         .pipe(gulp.dest('.dist/scripts'))
         .pipe(browserSync.reload({stream: true}))
@@ -153,17 +189,9 @@ gulp.task('data', function() {
         .on('error', gutil.log);
 });
 
-
-gulp.task('clean', function() {
-    return shell.task([
-      'rm -rf .dist'
-    ]);
-});
-
 process.env.NODE_ENV = 'development';
 
 gulp.task('default', function() {
-    gulp.run('clean');
     gulp.run('html');
     gulp.run('vendor');
     gulp.run('scripts');
@@ -181,4 +209,14 @@ gulp.task('default', function() {
     gulp.watch(['app/images/**/*.*'], ['images']);
     gulp.watch('app/fonts/**/*.*', ['fonts']);
     gulp.watch(['app/index.html', 'app/templates/**/*.html'], ['html']);
+});
+
+gulp.task('deploy', function() {
+    gulp.run('html');
+    gulp.run('vendor:prod');
+    gulp.run('scripts');
+    gulp.run('images');
+    gulp.run('styles:prod');
+    gulp.run('data');
+    gulp.run('fonts');
 });

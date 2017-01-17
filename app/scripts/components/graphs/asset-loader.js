@@ -30,51 +30,6 @@ var AssetLoader = Vue.component('asset-loader', {
         };
     },
     methods: {
-        createLayout: function () {
-            var PACK_PADDING = 30;
-            var PADDING = 80;
-            var width = 500;
-            var height = 500;
-            var groups = d3.range(20)
-                .map(function () {
-                    return {
-                        name: group.name,
-                        size: group.total,
-                    };
-                });
-            var data = {
-                name : 'root',
-                children : groups,
-            };
-            shuffle(data.children);
-
-            var nodes = d3.layout.pack()
-                .sort(null)
-                // .shuffle()//(a,b)=>b.size-a.size)
-                .size([width - PADDING * 2, height - PADDING * 2])
-                .padding(PACK_PADDING)
-                .value(function (d) {
-                    return d.size;
-                })
-                .nodes(data)
-
-            // remove root
-            _.remove(nodes, { name: 'root' });
-
-            // offset the circle within padded area for more randomness
-            var getPosition = function (d, axis) {
-                var trig = Math.sin;
-                if (axis === 'x')
-                    trig = Math.cos;
-                return d[axis] + PACK_PADDING * 0.3 * trig(d.offset.angle);
-            }
-            _.map(nodes, function (node) {
-                node.x = getPosition(node, 'x') + PADDING;
-                node.y = getPosition(node, 'y') + PADDING;
-            });
-
-            return nodes;
-        },
 
         draw: function (nodes) {
             for (i = 0; i < nodes.length; i++) {
@@ -92,7 +47,7 @@ var AssetLoader = Vue.component('asset-loader', {
                 }.bind(this), false);
             }).bind(this);
             var promise = new Promise(deferred);
-            img.src = './images/' + path;
+            img.src = './images/painted-world/' + path;
             return promise;
         },
 
@@ -107,7 +62,6 @@ var AssetLoader = Vue.component('asset-loader', {
 
         onUpdateMain: function (percent) {
             this.percentLoaded = Math.floor(percent * 100);
-            console.log('p', this.percentLoaded);
         },
 
         loadAll: function () {
@@ -186,10 +140,9 @@ var AssetLoader = Vue.component('asset-loader', {
                         });
                     }
                     incr = 1;
-                    var num = i + incr;
+                    num = i + incr;
                     for (; i < num; i++) {
-                        this.images.labels.push('images/label.png');
-                        // this.images.labels.push(images[i]);
+                        this.images.labels.push(images[i]);
                     }
                     for (; i < images.length; i++) {
                         this.images.paintMasks.push(images[i]);
@@ -204,6 +157,7 @@ var AssetLoader = Vue.component('asset-loader', {
             return promise;
         },
         onComplete: function () {
+            console.log('IS COMPLETE');
             this.isLoaded = true;
         },
     },
