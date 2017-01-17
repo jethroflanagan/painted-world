@@ -21,64 +21,36 @@ const generateUUID = () => {
 function organiseCategories (aggregate, isLimited) {
     var OTHER_PERCENT = 0; // groups below this are moved into other
     var OTHER_GROUP_NAME = 'Other'; // groups below this are moved into other
-    // var groups = {
-    //     'Housing & Utilities': ['Rental', 'Bond repayment', 'Home & garden', 'Home utilities & service'],
-    //     'Food': ['Eating out & take outs', 'Groceries'],
-    //     'Transportation': ['Transport & fuel', 'Vehicle expenses', 'Vehicle repayments'],
-    //     'Investments & RA’s': ['Investments', 'Saving'],
-    //     'Entertainment': ['Entertainment', 'Leisure & sport'],
-    //     'Healthcare': ['Health & medical'],
-    //     'Insurance': ['Insurance'],
-    //     'Fashion & Beauty': ['Personal care', 'Clothing  & shoes'],
-    //     'Internet & phone': ['Cellphone', 'Internet & phone'],
-    //     'Bank Fees & Interest': ['Banks charges & fees'],
-    //     'Holidays & travel': ['Holidays & travel'],
-    //     'Debt Repayments': ['Card payments', 'Loans'],
-    //     'Gifts & Donations':  [ 'Gifts', 'Donations to charity'],
-    //     'ATM & Cash': ['ATM & Cash'],
-    // };
-    // var reversed = {};
-    // // rewrite for simpler lookups
-    // _.map(groups, function (categories, key) {
-    //     _.map(categories, function (cat) {
-    //         reversed[cat] = key;
-    //     });
-    //
-    //     return categories;
-    //
-    // });
-    // console.log(JSON.stringify(reversed, null, '    '));
-
-    var categoryLookup = {
-        "Rental": "Housing & Utilities",
-        "Bond repayment": "Housing & Utilities",
-        "Home & garden": "Housing & Utilities",
-        "Home utilities & service": "Housing & Utilities",
-        "Eating out & take outs": "Food",
-        "Groceries": "Food",
-        "Transport & fuel": "Transportation",
-        "Vehicle expenses": "Transportation",
-        "Vehicle repayments": "Transportation",
-        "Investments": "Investments & RA’s",
-        "Saving": "Investments & RA’s",
-        "Entertainment": "Entertainment",
-        "Leisure & sport": "Entertainment",
-        "Health & medical": "Healthcare",
-        "Insurance": "Insurance",
-        "Personal care": "Fashion & Beauty",
-        "Clothing  & shoes": "Fashion & Beauty",
-        "Cellphone": "Internet & phone",
-        "Internet & phone": "Internet & phone",
-        "Banks charges & fees": "Bank Fees & Interest",
-        "Holidays & travel": "Holidays & travel",
-        "Card payments": "Debt Repayments",
-        "Loans": "Debt Repayments",
-        "Gifts": "Gifts & Donations",
-        "Donations to charity": "Gifts & Donations",
-        "ATM & Cash": "ATM & Cash",
+    var categoryMapping = {
+        'Housing & Utilities': ['Rental', 'Bond repayment', 'Home & garden', 'Home utilities & service'],
+        'Food': ['Eating out & take outs', 'Groceries'],
+        'Transportation': ['Transport & fuel', 'Vehicle expenses', 'Vehicle repayments'],
+        'Investments & RA’s': ['Investments', 'Saving'],
+        'Entertainment': ['Entertainment', 'Leisure & sport'],
+        'Healthcare': ['Health & medical'],
+        'Insurance': ['Insurance'],
+        'Fashion & Beauty': ['Personal care', 'Clothing  & shoes'],
+        'Internet & phone': ['Cellphone', 'Internet & phone'],
+        'Bank Fees & Interest': ['Banks charges & fees'],
+        'Holidays & travel': ['Holidays & travel'],
+        'Debt Repayments': ['Card payments', 'Loans'],
+        'Gifts & Donations':  [ 'Gifts', 'Donations to charity'],
+        'ATM & Cash': ['ATM & Cash'],
     };
-    // var now = moment();
-    // TODO start of 12 months ago
+    var categoryLookup = {};
+    
+    // rewrite for simpler lookups. 
+    // Hashmap with txn category as key, name of lookup as value e.g.
+    // `{"Rental": "Housing & Utilities", "Bond repayment": "Housing & Utilities"}`
+    _.map(categoryMapping, function (categories, key) {
+        _.map(categories, function (cat) {
+            categoryLookup[cat] = key;
+        });
+    
+        return categories;
+    
+    });
+    
     var groups = {};
     var categorize = function (groups, groupName, txn) {
         if (txn.spendingGroupName === 'Transfers') {
@@ -100,6 +72,7 @@ function organiseCategories (aggregate, isLimited) {
                 // return;
             }
             categorize(groups, groupName, txn);
+            // groups[groupName].contains.push(txn.categoryName);
         });
     }
     else {
@@ -119,12 +92,18 @@ function organiseCategories (aggregate, isLimited) {
             return subtotal;
         }, 0);
         allGroupsTotal += total;
+
+        // just grab first transaction to get rest of names in group
+        var contains = categoryLookup[group[0].categoryName];
+        // get list from mapping
+        contains = categoryMapping[contains];
+
         groups[name] = {
             name: name,
             total: total,
+            contains: contains,
         };
     });
-
     _.map(groups, function (group) {
         group.percent = Math.round(group.total / allGroupsTotal * 100);
         if (group.percent <= OTHER_PERCENT) {
@@ -143,15 +122,10 @@ function organiseCategories (aggregate, isLimited) {
         }
     });
 
-    groups = _.filter(groups, function (group, name) {
-        // group.name = name;
+    groups = _.filter(groups, function (group) {
         return group.total > 0 || group.name === OTHER_GROUP_NAME;
     });
 
-    // _.map(groups, function (g) {
-    //     console.log(g.name, '=', g.percent);
-    // });
-    // console.log('GROUPS', groups);
     return groups;
 }
 
@@ -327,6 +301,7 @@ var PaintedWorld = Vue.component('painted-world', {
                                 name: d.name,
                                 amount: d.size,
                                 percent: d.percent,
+                                contains: d.contains,
                             },
                             x: d.x,
                             y: d.y - INTERACTION_OFFSET_Y,
@@ -375,6 +350,7 @@ var PaintedWorld = Vue.component('painted-world', {
                     node.name = group.name;
                     node.size = group.total;
                     node.percent = group.percent;
+                    node.contains = group.contains;
                     node.offset = {
                         angle: Math.random() * Math.PI * 2,
                     };

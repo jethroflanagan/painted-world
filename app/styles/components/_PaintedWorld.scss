@@ -1,333 +1,350 @@
 .Painting {
     // transform: scale(0.5) translate(-50%, -50%);
-
-}
-.PaintedWorld {
-    position: relative;
-    width: 900px;
-    height: 800px;
-}
-.Label {
-    $anim: 0.3s ease-out .1s;
-    $animOut: 0.15s ease-out 0.15s;
-    position: absolute;
-    // width: 5px;
-    // height: 5px;
-    // background: red;
-    opacity: 0;
-    pointer-events: none;
-    transform: scale(.75, .75);
-    transition:
-        transform $anim,
-        opacity $anim;
-    // transform: scale(1, 1);
-    &--show {
-        opacity: 1;
-        // margin-top: 0;
-        transform: scale(1, 1);
-        // animation: showContainer .3s  linear 1 forwards;
+    .PaintedWorld {
+        position: relative;
+        width: 900px;
+        height: 800px;
     }
-    &--hide {
-        transition:
-            transform $animOut,
-            opacity $animOut;
-        // opacity:  1;
-        // margin-top: 0;
-        // transform: scale(.75, .75);
-        // animation: hideContainer .2s  linear 1 forwards;
-    }
-    &-rotate {
-        display: block;
-    }
-    // border: 1px solid #000;
-}
-
-.LabelText {
-    font-family: 'Titillium Web';
-    position: absolute;
-
-    transform: translate(calc(-50% + 78px), -100px);
-    &--flip {
-        transform: translate(calc(-50% + -73px), -100px);
-    }
-    text-align: center;
-    white-space: nowrap;
-
-    &-name {
-        font-size: 22px;
-        display: block;
-        margin-bottom: 10px;
-        color: #000;
-    }
-    &-percent {
-        display: inline-block;
-        font-size: 16px;
-        color: rgba(0, 0, 0, 0.8);
-    }
-    &-amount {
-        margin-left: 10px;
-        display: inline-block;
-        font-size: 16px;
-        color: rgba(0, 0, 0, 0.8);
-    }
-
-    &-background {
-        background-image: url(../images/label.png);
-        background-repeat: no-repeat;
-        width: 289px;
-        height: 150px;
-        display: block;
+    .Label {
+        $anim: 0.3s ease-out .1s;
+        $animOut: 0.15s ease-out 0.15s;
         position: absolute;
-        transform: translate(-66px, -127px);
-        &--flip {
-            transform: translate(-217px, -127px) scale(-1, 1);
-        }
-
-    }
-}
-
-.Label-hit {
-    // background: red;
-    // width: 100px;
-    // height: 100px;
-    position: absolute;
-    // opacity: 0.8;
-    background: transparent;
-    border-radius: 100%;
-    cursor: pointer;
-}
-
-.Painting {
-    position: relative;
-    user-select: none;
-}
-
-.PaintControls {
-    display: block;
-    position: relative;
-    &--disabled {
-        // display: none;
-    }
-}
-
-.Button {
-    position: absolute;
-    padding: 10px 20px;
-    border-radius: 100px;
-    font-family: 'Titillium Web';
-    font-size: 1em;
-    border: none;
-    background: rgba(0, 0, 0, 0.08);
-    color: rgba(0,0,0,0.6);
-    // box-shadow: inset 1px 1px 20px rgba(0, 0, 0, 0.2);
-    box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.2);
-    outline: none;
-    line-height: 25px;
-    transition:
-        background .3s ease-out,
-        color 0.3s ease-out,
-        box-shadow 0.3s ease-out;
-    &:not(:disabled) {
-        cursor: pointer;
-        &:hover, &:focus, &:active {
-            background: rgba(0, 0, 0, 0.1);
-            box-shadow: inset 0 0 1px rgba(0, 0, 0, 0.4);
-            color: rgba(0,0,0,0.9);
-        }
-    }
-    &:visited, &:focus, &:active {
-        text-decoration: none;
-    }
-    &--disabled {
+        // width: 5px;
+        // height: 5px;
+        // background: red;
+        opacity: 0;
         pointer-events: none;
-        cursor: default;
-        background: rgba(0, 0, 0, 0.06);
-        box-shadow: inset 0 0 1px rgba(0, 0, 0, 0.2);
-        color: rgba(0,0,0,0.3);
-    }
-    &--reset {
-        top: 20px;
-        left: 20px;
-    }
-    &--download {
-        top: 20px;
-        right: 20px;
-    }
-}
-
-.Offscreen {
-    display: none;
-}
-
-.Checkbox {
-    $cross1Transform: rotate(45deg) translate(7px, 6px);
-    $cross2Transform: rotate(-45deg) translate(-4px, 6px);
-
-    position: absolute;
-    cursor: pointer;
-    &--disabled {
-        pointer-events: none;
-        cursor: default;
+        transform: scale(.75, .75);
+        transition:
+            transform $anim,
+            opacity $anim;
+        // transform: scale(1, 1);
+        &--show {
+            opacity: 1;
+            // margin-top: 0;
+            transform: scale(1, 1);
+            // animation: showContainer .3s  linear 1 forwards;
+        }
+        &--hide {
+            transition:
+                transform $animOut,
+                opacity $animOut;
+            // opacity:  1;
+            // margin-top: 0;
+            // transform: scale(.75, .75);
+            // animation: hideContainer .2s  linear 1 forwards;
+        }
+        &-rotate {
+            display: block;
+        }
+        // border: 1px solid #000;
     }
 
-    &-label {
-        display: inline-block;
+    .LabelText {
         font-family: 'Titillium Web';
-        line-height: 20px;
-        color: rgba(0,0,0,0.6);
-        transition: color .3s ease-out;
+        position: absolute;
+        width: 230px;
+        transform: translate(calc(-50% + 78px), -100px);
+        &--flip {
+            transform: translate(calc(-50% + -73px), -100px);
+        }
+        &--grouped {
+            // transform: translate(calc(-50% + 78px), -110px);
+            margin-top: - 5px;
+        }
+        text-align: center;
+        white-space: nowrap;
+
+        &-name {
+            font-size: 22px;
+            display: block;
+            margin-bottom: 10px;
+            color: #000;
+            text-overflow: ellipsis;
+            width: 100%;
+            overflow: hidden;
+        }
+        &-groups {
+            font-size: 13px;
+            line-height: 13px;
+            overflow: hidden;
+            width: 100%;
+            text-overflow: ellipsis;
+            display: block;
+            margin-top: -5px;
+            margin-bottom: 5px;
+        }
+        &-percent {
+            display: inline-block;
+            font-size: 16px;
+            color: rgba(0, 0, 0, 0.8);
+        }
+        &-amount {
+            margin-left: 10px;
+            display: inline-block;
+            font-size: 16px;
+            color: rgba(0, 0, 0, 0.8);
+        }
+
+        &-background {
+            background-image: url(../images/label.png);
+            background-repeat: no-repeat;
+            width: 289px;
+            height: 150px;
+            display: block;
+            position: absolute;
+            transform: translate(-66px, -127px);
+            &--flip {
+                transform: translate(-217px, -127px) scale(-1, 1);
+            }
+
+        }
     }
-    &--disabled &-label {
-        color: rgba(0,0,0,0.3);
-    }
-    &-field[type="checkbox"] {
+
+    .Label-hit {
+        // background: red;
         // width: 100px;
-        //opacity: 0.5;
+        // height: 100px;
+        position: absolute;
+        // opacity: 0.8;
+        background: transparent;
+        border-radius: 100%;
+        cursor: pointer;
+    }
+
+    .Painting {
+        position: relative;
+        user-select: none;
+    }
+
+    .PaintControls {
+        display: block;
+        position: relative;
+        &--disabled {
+            // display: none;
+        }
+    }
+
+    .Button {
+        position: absolute;
+        padding: 10px 20px;
+        border-radius: 100px;
+        font-family: 'Titillium Web';
+        font-size: 1em;
+        border: none;
+        background: rgba(0, 0, 0, 0.08);
+        color: rgba(0,0,0,0.6);
+        // box-shadow: inset 1px 1px 20px rgba(0, 0, 0, 0.2);
+        box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.2);
+        outline: none;
+        line-height: 25px;
+        transition:
+            background .3s ease-out,
+            color 0.3s ease-out,
+            box-shadow 0.3s ease-out;
+        &:not(:disabled) {
+            cursor: pointer;
+            &:hover, &:focus, &:active {
+                background: rgba(0, 0, 0, 0.1);
+                box-shadow: inset 0 0 1px rgba(0, 0, 0, 0.4);
+                color: rgba(0,0,0,0.9);
+            }
+        }
+        &:visited, &:focus, &:active {
+            text-decoration: none;
+        }
+        &--disabled {
+            pointer-events: none;
+            cursor: default;
+            background: rgba(0, 0, 0, 0.06);
+            box-shadow: inset 0 0 1px rgba(0, 0, 0, 0.2);
+            color: rgba(0,0,0,0.3);
+        }
+        &--reset {
+            top: 20px;
+            left: 20px;
+        }
+        &--download {
+            top: 20px;
+            right: 20px;
+        }
+    }
+
+    .Offscreen {
         display: none;
-        // appearance: none;
-        &:hover + .Checkbox-box,
-        &:focus + .Checkbox-box,
-        &:active + .Checkbox-box {
+    }
+
+    .Checkbox {
+        $cross1Transform: rotate(45deg) translate(7px, 6px);
+        $cross2Transform: rotate(-45deg) translate(-4px, 6px);
+
+        position: absolute;
+        cursor: pointer;
+        &--disabled {
+            pointer-events: none;
+            cursor: default;
+        }
+
+        &-label {
+            display: inline-block;
+            font-family: 'Titillium Web';
+            line-height: 20px;
+            color: rgba(0,0,0,0.6);
+            transition: color .3s ease-out;
+        }
+        &--disabled &-label {
+            color: rgba(0,0,0,0.3);
+        }
+        &-field[type="checkbox"] {
+            // width: 100px;
+            //opacity: 0.5;
+            display: none;
+            // appearance: none;
+            &:hover + .Checkbox-box,
+            &:focus + .Checkbox-box,
+            &:active + .Checkbox-box {
+                background: rgba(0, 0, 0, 0.2);
+                box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.3);
+            }
+            &:hover ~ .Checkbox-label,
+            &:focus ~ .Checkbox-label,
+            &:active ~ .Checkbox-label {
+                color: rgba(0,0,0,0.9);
+            }
+            &:checked + .Checkbox-box {
+                &:before {
+                    transform: $cross1Transform scale(1,1);
+                }
+                &:after {
+                    transform: $cross2Transform scale(1,1);
+                }
+            }
+        }
+        &-box {
+            display:inline-block;
+            width: 20px;
+            height: 20px;
+            box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+            // background:url(check_radio_sheet.png) left top no-repeat;
+            background: rgba(0, 0, 0, 0.1);
+            // mix-blend-mode: multiply;
+            transition:
+                box-shadow .3s ease-out,
+                background .3s ease-out;
+
+            $pseudoTransformTransition: transform 0.1s ease-out;
+            $pseudoOtherTransition: background 0.1s ease-out;
+            &:before, &:after {
+                content: '';
+                display: block;
+                background: #666;
+                width: 17px;
+                height: 2px;
+                transform: $cross1Transform scale(0,1);
+                border-radius: 20px;
+            }
+            &:before {
+                transform: $cross1Transform scale(0,1);
+                transition:
+                $pseudoTransformTransition .1s,
+                    $pseudoOtherTransition;
+            }
+            &:after {
+                transform: $cross2Transform scale(0,1);
+                transition:
+                    $pseudoTransformTransition,
+                    $pseudoOtherTransition;
+            }
+        }
+        &--disabled &-box {
+            background: rgba(0, 0, 0, 0.06);
+            box-shadow: inset 0 0 1px rgba(0, 0, 0, 0.2);
+            &:after, &:before {
+                background: #bbb;
+            }
+        }
+        &:hover &-box {
             background: rgba(0, 0, 0, 0.2);
             box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.3);
         }
-        &:hover ~ .Checkbox-label,
-        &:focus ~ .Checkbox-label,
-        &:active ~ .Checkbox-label {
+        &:hover &-label {
             color: rgba(0,0,0,0.9);
         }
-        &:checked + .Checkbox-box {
-            &:before {
-                transform: $cross1Transform scale(1,1);
-            }
-            &:after {
-                transform: $cross2Transform scale(1,1);
-            }
-        }
-    }
-    &-box {
-        display:inline-block;
-        width: 20px;
-        height: 20px;
-        box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.2);
-        border-radius: 3px;
-        // background:url(check_radio_sheet.png) left top no-repeat;
-        background: rgba(0, 0, 0, 0.1);
-        // mix-blend-mode: multiply;
-        transition:
-            box-shadow .3s ease-out,
-            background .3s ease-out;
 
-        $pseudoTransformTransition: transform 0.1s ease-out;
-        $pseudoOtherTransition: background 0.1s ease-out;
-        &:before, &:after {
-            content: '';
-            display: block;
-            background: #666;
-            width: 17px;
-            height: 2px;
-            transform: $cross1Transform scale(0,1);
-            border-radius: 20px;
-        }
-        &:before {
-            transform: $cross1Transform scale(0,1);
-            transition:
-            $pseudoTransformTransition .1s,
-                $pseudoOtherTransition;
-        }
-        &:after {
-            transform: $cross2Transform scale(0,1);
-            transition:
-                $pseudoTransformTransition,
-                $pseudoOtherTransition;
-        }
-    }
-    &--disabled &-box {
-        background: rgba(0, 0, 0, 0.06);
-        box-shadow: inset 0 0 1px rgba(0, 0, 0, 0.2);
-        &:after, &:before {
-            background: #bbb;
-        }
-    }
-    &:hover &-box {
-        background: rgba(0, 0, 0, 0.2);
-        box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.3);
-    }
-    &:hover &-label {
-        color: rgba(0,0,0,0.9);
-    }
-
-    &--grouped {
-        left: 180px;
-        top: 30px;
-        .Checkbox-label {
-            transform: translate(2px, -5px);
-            & span {
-                display: inline-block;
+        &--grouped {
+            left: 180px;
+            top: 30px;
+            .Checkbox-label {
+                transform: translate(2px, -5px);
+                & span {
+                    display: inline-block;
+                }
             }
         }
     }
-}
 
-.Log {
-    position: absolute;
-    top: 0;
-    left: 900px;
-    right: 0;
-    padding: 10px;
-    height: 800px;
-    overflow-x: hidden;
-    overflow-y: scroll;
-    box-sizing: border-box;
-    border-bottom: 1px solid #ccc;
-}
-
-.Preview {
-    padding: 3px;
-    display: inline-block;
-    margin: 3px;
-    border-radius: 3px;
-    background: #444;
-    position: relative;
-
-    &-image {
-        width: 200px;
-        border-radius: 3px;
-        vertical-align: bottom;
-    }
-    &-download {
-        display: block;
+    .Log {
         position: absolute;
         top: 0;
-        bottom: 0;
-        left: 0;
+        left: 900px;
         right: 0;
-        text-decoration: none;
-        font-family: 'Titillium Web';
-        text-align: center;
-        &Text {
-            color: #fff;
-            background: rgba(0, 0, 0, 0.7);
-            margin-top: calc(50% - 30px);
-            // position: relative;
-            line-height: 20px;
-            padding: 10px 20px;
-            box-sizing: border-box;
-            display: inline-block;
-            border-radius: 100px;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.7);
-            opacity: 0;
-            transition: opacity 0.3s linear;
-        }
-        &:hover &Text {
-            opacity: 1;
-        }
+        padding: 10px;
+        height: 800px;
+        overflow-x: hidden;
+        overflow-y: scroll;
+        box-sizing: border-box;
+        border-bottom: 1px solid #ccc;
     }
-    // &-stats {
-    //     padding: 5px;
-    //     text-align: center;
-    //     font-family: sans-serif;
-    //     white-space: nowrap;
-    //     color: #fff;
-    // }
+
+    .Preview {
+        padding: 3px;
+        display: inline-block;
+        margin: 3px;
+        border-radius: 3px;
+        background: #444;
+        position: relative;
+
+        &-image {
+            width: 200px;
+            border-radius: 3px;
+            vertical-align: bottom;
+        }
+        &-download {
+            display: block;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            text-decoration: none;
+            font-family: 'Titillium Web';
+            text-align: center;
+            &Text {
+                color: #fff;
+                background: rgba(0, 0, 0, 0.7);
+                margin-top: calc(50% - 30px);
+                // position: relative;
+                line-height: 20px;
+                padding: 10px 20px;
+                box-sizing: border-box;
+                display: inline-block;
+                border-radius: 100px;
+                box-shadow: inset 0 0 10px rgba(0,0,0,0.7);
+                opacity: 0;
+                transition: opacity 0.3s linear;
+            }
+            &:hover &Text {
+                opacity: 1;
+            }
+        }
+        // &-stats {
+        //     padding: 5px;
+        //     text-align: center;
+        //     font-family: sans-serif;
+        //     white-space: nowrap;
+        //     color: #fff;
+        // }
+    }
 }
+

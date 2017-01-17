@@ -53,9 +53,16 @@ function Labeler (opts) {
 
             var labelBackground = this.addLayer(labelContainer, 'LabelText-background' + (isFlipped ? ' LabelText-background--flip' : ''));
 
-            var labelText = this.addLayer(labelContainer, 'LabelText' + (isFlipped ? ' LabelText--flip' : ''));
+            var hasGroupList = group.contains;
+            if (hasGroupList && group.contains.length === 1 && group.contains[0] === group.name) {
+                hasGroupList = false;
+            }
+            var labelText = this.addLayer(labelContainer, 'LabelText' + (isFlipped ? ' LabelText--flip' : '') + (hasGroupList ? ' LabelText--grouped': ''));
 
             this.addLayer(labelText, 'LabelText-name', group.name);
+            if (hasGroupList) {
+                this.addLayer(labelText, 'LabelText-groups', group.contains.join(', '));
+            }
 
             var percent = Math.round(group.percent);
             if (percent === 0) {
