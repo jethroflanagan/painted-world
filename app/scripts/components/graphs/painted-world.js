@@ -184,8 +184,7 @@ var PaintedWorld = Vue.component('painted-world', {
                     :download="download"
                     :isEnabled="canInteract"
                     :ctx="ctx"
-                    v-on:messy-updated="onMessyUpdated"
-                    v-on:hue-updated="onHueUpdated"
+                    v-on:grouped-updated="onGroupedUpdated"
                 >
                 </paint-controls>
                 <div class="js-overlay"></div>
@@ -212,19 +211,15 @@ var PaintedWorld = Vue.component('painted-world', {
             //     canvases: [],
             // },
             painter: null,
-            isMessy: true,
+            isGrouped: true,
             isHueShiftAllowed: true,
             percentLoaded: 0,
         };
     },
     methods: {
-        onMessyUpdated: function (val) {
-            this.isMessy = val;
-        },
-
-        onHueUpdated: function (val) {
-            console.log('isHueShiftAllowed', val);
-            this.isHueShiftAllowed = val;
+        onGroupedUpdated: function (val) {
+            this.isGrouped = val;
+            this.reset();
         },
 
         reset: function () {
@@ -244,11 +239,13 @@ var PaintedWorld = Vue.component('painted-world', {
             this.canInteract = isAllowed;
         },
 
-        replacePainting: function (e) {
-            console.log(e.currentTarget.querySelector('.Preview-image'));
-            this.ctx.globalCompositeOperation = 'source-over';
-            this.ctx.drawImage(e.currentTarget.querySelector('.Preview-image'), 0, 0, this.width, this.height);
-        },
+        // downloadPrevious: function (e) {
+        //     var ctx = e.currentTarget.querySelector('.Preview-image');
+        //     // this.ctx.globalCompositeOperation = 'source-over';
+        //     // this.ctx.drawImage(e.currentTarget.querySelector('.Preview-image'), 0, 0, this.width, this.height);
+
+        //     var container = d3.select(e.currentTarget);
+        // },
 
         paint: function () {
             this.setInteractionAllowed(false);
@@ -267,14 +264,10 @@ var PaintedWorld = Vue.component('painted-world', {
             if (this.isHueShiftAllowed) {
                 hueShift = hues[Math.floor(Math.random() * hues.length)];
             }
-            // console.log('nodes', nodes.length);
             var canvasTheme = this.images.canvases[Math.floor(Math.random() * this.images.canvases.length)];
             var count = nodes.length;
             var onCompletePaint = function () {
                 if (--count <= 0) {
-                //     ctx.globalCompositeOperation = 'multiply';
-                //     ctx.drawImage(canvasTheme, 0, 0, this.width, this.height);
-                //     ctx.globalCompositeOperation = 'source-over';
                     this.setInteractionAllowed(true);
 
                     // save to log
@@ -285,20 +278,29 @@ var PaintedWorld = Vue.component('painted-world', {
                             'class': 'Preview',
                         });
 
-                    container
+                    var img = container
                         .append('img')
                         .attr({
                             src: imgData,
                             'class': 'Preview-image',
                         });
-                    // container
-                    //     .append('div')
-                    //     .attr({
-                    //         'class': 'Preview-stats',
-                    //     })
-                    //     .text('color: ' + (colorIndex+1) + ', hue: ' + hueShift + 'deg');
+
+                    container
+                        .append('a')
+                        .attr({
+                            download: 'painted-world.png',
+                            'class': 'Preview-download js-download',
+                        })
+                            .append('span')
+                            .attr({
+                                'class': 'Preview-downloadText',
+                            })
+                            .text('Download');
                     
-                    container.node().addEventListener('mousedown', this.replacePainting);
+                    container.select('.js-download')
+                        .attr({
+                            'href': imgData,
+                        });
                 }
             }.bind(this);
 
@@ -334,9 +336,7 @@ var PaintedWorld = Vue.component('painted-world', {
                 })(d).bind(this), Math.random() * PAINT_TIME);
                 // console.log('loading', Math.floor((i + 1) / nodes.length  * 100));
             }
-            if (this.isMessy) {
-                this.speckleCanvas(colorTheme, hueShift);
-            }
+            this.speckleCanvas(colorTheme, hueShift);
         },
 
         speckleCanvas: function (colorTheme, hueShift) {
@@ -367,7 +367,7 @@ var PaintedWorld = Vue.component('painted-world', {
             var PADDING = 80;
             var width = this.width;
             var height = this.height;
-            var groups = organiseCategories(aggregateService.data, true);
+            var groups = organiseCategories(aggregateService.data, this.isGrouped);
             var data = {
                 name : 'root',
                 children : _.map(groups, function(group, i) {

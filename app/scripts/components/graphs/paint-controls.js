@@ -10,25 +10,15 @@ var PaintControls = Vue.component('paint-controls', {
             <a class="Button Button--download js-download" download="painted-world.png" style="text-decoration:none" :class="{ 'Button--disabled': !isEnabled }">
                 Download
             </a>
-            <label class="Checkbox Checkbox--messy"
-                for="messy"
+            <label class="Checkbox Checkbox--grouped"
+                for="grouped"
                 :class="{ 'Checkbox--disabled': !isEnabled }"
             >
-                <input class="Checkbox-field" type="checkbox" id="messy"
-                    @click="updateMessy"
+                <input class="Checkbox-field" type="checkbox" id="grouped"
+                    @click="updateGrouped"
                     checked>
                 <span class="Checkbox-box"></span>
-                <span class="Checkbox-label">Messy</span>
-            </label>
-            <label class="Checkbox Checkbox--hue"
-                for="hue"
-                :class="{ 'Checkbox--disabled': !isEnabled }"
-            >
-                <input class="Checkbox-field" type="checkbox" id="hue"
-                    @click="updateHue"
-                    checked>
-                <span class="Checkbox-box"></span>
-                <span class="Checkbox-label">More colours</span>
+                <span class="Checkbox-label"><span>Group</span> <span>similar</span> <span>categories</span></span>
             </label>
         </div>
     `,
@@ -42,7 +32,7 @@ var PaintControls = Vue.component('paint-controls', {
         return {
             resetBtn: null,
             downloadBtn: null,
-            isMessy: true,
+            isGrouped: true,
             get width () {
                 if (!this.ctx) return 0;
                 return this.ctx.canvas.width;
@@ -61,11 +51,8 @@ var PaintControls = Vue.component('paint-controls', {
                 }
             }.bind(this);
         },
-        updateMessy: function (e) {
-            this.$emit('messy-updated', e.target.checked);
-        },
-        updateHue: function (e) {
-            this.$emit('hue-updated', e.target.checked);
+        updateGrouped: function (e) {
+            this.$emit('grouped-updated', e.target.checked);
         },
     },
     mounted: function () {
