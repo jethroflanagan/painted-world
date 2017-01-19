@@ -163,7 +163,9 @@ var PaintedWorld = Vue.component('painted-world', {
                 </paint-controls>
                 <div class="js-overlay"></div>
             </div>
-            <div class="Log js-log"></div>
+            <div class="Log js-log">
+                <a class="Button Button--close">Close</a>
+            </div>
         </div>
     `,
     props: [
@@ -252,6 +254,7 @@ var PaintedWorld = Vue.component('painted-world', {
                             'class': 'Preview',
                         });
 
+
                     var img = container
                         .append('img')
                         .attr({
@@ -271,10 +274,19 @@ var PaintedWorld = Vue.component('painted-world', {
                             })
                             .text('Download');
                     
-                    container.select('.js-download')
-                        .attr({
+                    // dataURL is expensive to hover over/out (decodes image, resolves address), so only add the url on click
+                    var downloadBtn = container.select('.js-download')
+                    downloadBtn.on('click', function () {
+                        downloadBtn.attr({
                             'href': imgData,
                         });
+                        // turn it off again to regain performance
+                        setTimeout(function () {
+                            downloadBtn.attr({
+                                'href': '',
+                            });
+                        }, 1);
+                    });
                 }
             }.bind(this);
 
@@ -511,6 +523,7 @@ var PaintedWorld = Vue.component('painted-world', {
                 height: height,
                 labelImages: this.images.labels,
             });
+
         },
 
     },

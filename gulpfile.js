@@ -213,10 +213,12 @@ gulp.task('default', function() {
 
 gulp.task('deploy', function() {
     gulp.run('html');
-    gulp.run('vendor:prod');
+    // gulp.run('vendor:prod');
+    gulp.run('vendor');
     gulp.run('scripts');
     gulp.run('images');
-    gulp.run('styles:prod');
+    // gulp.run('styles:prod');
+    gulp.run('styles');
     gulp.run('data');
     gulp.run('fonts');
 });
