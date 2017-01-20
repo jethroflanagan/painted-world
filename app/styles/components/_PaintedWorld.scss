@@ -3,12 +3,21 @@
     position: relative;
     user-select: none;
     width: 900px;
+    border-radius: 4px;
+    overflow: hidden;
+    display: inline-block;
 
     // transform: scale(0.5) translate(-50%, -50%);
+    .Canvas {
+        border-radius: 4px;
+        overflow: hidden;
+    }
     .PaintedWorld {
         position: relative;
         width: 900px;
         height: 800px;
+        overflow: hidden;
+        border-radius: 4px;
     }
     .Label {
         $anim: 0.3s ease-out .1s;
@@ -143,6 +152,7 @@
         height: 45px;
         box-sizing: border-box;
         transition:
+            top .3s ease-out,
             background .3s ease-out,
             color 0.3s ease-out,
             box-shadow 0.3s ease-out;
@@ -172,11 +182,16 @@
             top: 20px;
             right: 20px;
         }
+        &--hidden {
+            top: -50px;
+        }
         &--close {
             background: rgba(0,0,0,0.7);
             color: #fff;
             padding-left: 40px;
             text-transform: uppercase;
+            position: relative;
+            top: 10px;
             &:before {
                 // text-transform: lowercase;
                 content: 'x';
@@ -314,14 +329,23 @@
     .Log {
         position: absolute;
         top: 0;
-        right: 0;
-        width: 200px;
         padding: 10px;
         height: 800px;
         overflow: hidden;
         box-sizing: border-box;
         border-bottom: 1px solid #ccc;
         background: rgba(0,0,0,0.2);
+        text-align: center;
+        width: 200px;
+        right: -200px;
+        transition: right 0.3s ease-out;
+        &--visible {
+            right: 0;
+        }
+        &-preview {
+            padding-top: 30px;
+            text-align: left;
+        }
     }
 
     .Preview {
@@ -331,7 +355,7 @@
         border-radius: 3px;
         background: #444;
         position: relative;
-        
+        cursor: pointer;
         &-image {
             width: 80px;
             border-radius: 3px;

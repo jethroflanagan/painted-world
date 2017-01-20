@@ -146,6 +146,7 @@ function shuffle (array) {
 }
 var INTERACTION_OFFSET_Y = 70;
 var PAINT_TIME = 2000;
+var MAX_LOGGED_ITEMS = 16;
 var PaintedWorld = Vue.component('painted-world', {
     // inline style needs to be forced for text decoration to handle :visited for some reason
     template: `
@@ -156,15 +157,21 @@ var PaintedWorld = Vue.component('painted-world', {
                 <paint-controls
                     :reset="reset"
                     :download="download"
+                    :showLog="showLog"
                     :isEnabled="canInteract"
+                    :isLogVisible="isLogVisible"
                     :ctx="ctx"
                     v-on:grouped-updated="onGroupedUpdated"
                 >
                 </paint-controls>
                 <div class="js-overlay"></div>
             </div>
-            <div class="Log js-log">
-                <a class="Button Button--close">Close</a>
+            <div class="Log js-log"
+                :class="{
+                     'Log--visible': isLogVisible
+                }">
+                <a class="Button Button--close" @click="closeLog">Close</a>
+                <div class="Log-preview js-log-preview"></div>
             </div>
         </div>
     `,
@@ -190,6 +197,7 @@ var PaintedWorld = Vue.component('painted-world', {
             isGrouped: true,
             isHueShiftAllowed: true,
             percentLoaded: 0,
+            isLogVisible: false,
         };
     },
     methods: {
@@ -248,7 +256,7 @@ var PaintedWorld = Vue.component('painted-world', {
 
                     // save to log
                     var imgData = this.ctx.canvas.toDataURL('image/png');
-                    var container = d3.select('.js-log')
+                    var container = d3.select('.js-log-preview')
                         .insert('div', ':first-child')
                         .attr({
                             'class': 'Preview',
@@ -287,6 +295,13 @@ var PaintedWorld = Vue.component('painted-world', {
                             });
                         }, 1);
                     });
+
+                    var previewElList = document.querySelectorAll('.Preview');
+                    if (previewElList.length > MAX_LOGGED_ITEMS) {
+                        var previewEl = previewElList[previewElList.length - 1];
+                        container.select('.js-download').on('click', null);
+                        previewEl.remove();
+                    }
                 }
             }.bind(this);
 
@@ -414,6 +429,7 @@ var PaintedWorld = Vue.component('painted-world', {
                     .attr({
                         width: width,
                         height: height,
+                        'class': 'Canvas',
                     })
                     .style({
                         position: 'absolute',
@@ -526,6 +542,14 @@ var PaintedWorld = Vue.component('painted-world', {
 
         },
 
+        closeLog: function () {
+            console.log('hide');
+            this.isLogVisible = false;
+        },
+        showLog: function () {
+            console.log('show');
+            this.isLogVisible = true;
+        },
     },
     mounted: function () {
         // var data = this.data;

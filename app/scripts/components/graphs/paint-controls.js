@@ -4,10 +4,20 @@ var PaintControls = Vue.component('paint-controls', {
     // inline style needs to be forced for text decoration to handle :visited for some reason
     template: `
         <div class="PaintControls" :class="{ 'PaintControls--disabled': !isEnabled }">
-            <a class="Button Button--reset js-reset" :class="{ 'Button--disabled': !isEnabled }">
+            <a class="Button Button--reset js-resetBtn" 
+                :class="{ 'Button--disabled': !isEnabled }"
+            >
                 Paint another
             </a>
-            <a class="Button Button--download js-download" download="painted-world.png" style="text-decoration:none" :class="{ 'Button--disabled': !isEnabled }">
+            <a class="Button Button--download js-downloadBtn" 
+                download="painted-world.png" 
+                style="text-decoration:none" 
+                :class="{ 
+                    'Button--disabled': !isEnabled,
+                    'Button--hidden': isLogVisible,
+                }"
+                
+            >
                 Download
             </a>
             <label class="Checkbox Checkbox--grouped"
@@ -25,8 +35,10 @@ var PaintControls = Vue.component('paint-controls', {
     props: [
         'reset',
         'download',
+        'showLog',
         'isEnabled',
         'ctx',
+        'isLogVisible',
     ],
     data() {
         return {
@@ -56,11 +68,13 @@ var PaintControls = Vue.component('paint-controls', {
         },
     },
     mounted: function () {
-        this.resetBtn = document.querySelector('.js-reset');
-        this.downloadBtn = document.querySelector('.js-download');
+        this.resetBtn = document.querySelector('.js-resetBtn');
+        this.downloadBtn = document.querySelector('.js-downloadBtn');
+        // this.logBtn = document.querySelector('.js-logBtn');
 
         this.resetBtn.addEventListener('mousedown', this.runCb(this.reset));
-        this.downloadBtn.addEventListener('mousedown', this.runCb(this.download));
+        this.downloadBtn.addEventListener('mousedown', this.runCb(this.showLog));
+        // this.logBtn.addEventListener('mousedown', this.runCb(this.showLog));
     },
 });
 
