@@ -38,7 +38,7 @@ function Labeler (opts) {
             var y = Math.round(opts.y + Math.random() * variation - variation / 2 + yOffset);
 
             var label = this.addLayer(null, 'Label');
-            var isFlipped = x > canvasWidth / 2;
+            var isFlipped = x > canvasWidth / 2 * opts.scale;
             label.setAttribute('style', [
                 'left:' + x + 'px',
                 'top:' + y + 'px',

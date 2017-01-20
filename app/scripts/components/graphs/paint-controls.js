@@ -7,7 +7,7 @@ var PaintControls = Vue.component('paint-controls', {
             <a class="Button Button--reset js-resetBtn" 
                 :class="{ 'Button--disabled': !isEnabled }"
             >
-                Paint another
+                <span>Paint another</span>
             </a>
             <a class="Button Button--download js-downloadBtn" 
                 download="painted-world.png" 
@@ -18,7 +18,7 @@ var PaintControls = Vue.component('paint-controls', {
                 }"
                 
             >
-                Download
+                <span>Download</span>
             </a>
             <label class="Checkbox Checkbox--grouped"
                 for="grouped"
@@ -28,7 +28,7 @@ var PaintControls = Vue.component('paint-controls', {
                     @click="updateGrouped"
                     checked>
                 <span class="Checkbox-box"></span>
-                <span class="Checkbox-label"><span>Group</span> <span>similar</span> <span>categories</span></span>
+                <span class="Checkbox-label">Group similar <span>categories</span></span>
             </label>
         </div>
     `,

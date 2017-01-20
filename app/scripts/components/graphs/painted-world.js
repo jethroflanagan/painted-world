@@ -147,6 +147,8 @@ function shuffle (array) {
 var INTERACTION_OFFSET_Y = 70;
 var PAINT_TIME = 2000;
 var MAX_LOGGED_ITEMS = 16;
+var WIDTH = 900;
+var HEIGHT = 800;
 var PaintedWorld = Vue.component('painted-world', {
     // inline style needs to be forced for text decoration to handle :visited for some reason
     template: `
@@ -198,6 +200,7 @@ var PaintedWorld = Vue.component('painted-world', {
             isHueShiftAllowed: true,
             percentLoaded: 0,
             isLogVisible: false,
+            repaintOnComplete: false, // for repainting on window resize
         };
     },
     methods: {
@@ -231,7 +234,9 @@ var PaintedWorld = Vue.component('painted-world', {
         //     var container = d3.select(e.currentTarget);
         // },
 
-        paint: function () {
+        paint: function (scale) {
+            var scale = Math.min(WIDTH, document.body.clientWidth) / WIDTH;
+            var heightOffset = (HEIGHT - scale * HEIGHT) / 2;
             this.setInteractionAllowed(false);
             this.labeler.cleanup();
             var ctx = this.ctx;
@@ -252,6 +257,12 @@ var PaintedWorld = Vue.component('painted-world', {
             var count = nodes.length;
             var onCompletePaint = function () {
                 if (--count <= 0) {
+                    if (this.repaintOnComplete) {
+                        this.reset();
+                        this.repaintOnComplete = false;
+                        return;
+                    }
+
                     this.setInteractionAllowed(true);
 
                     // save to log
@@ -314,9 +325,9 @@ var PaintedWorld = Vue.component('painted-world', {
                     return function () {
                         this.painter.paint(
                             {
-                                cx: d.x,
-                                cy: d.y,
-                                radius: d.r,
+                                cx: d.x * scale,
+                                cy: d.y * scale + heightOffset,
+                                radius: d.r * scale,
                                 colorTheme: colorTheme,
                                 hueShift: hueShift,
                             },
@@ -330,9 +341,10 @@ var PaintedWorld = Vue.component('painted-world', {
                                 percent: d.percent,
                                 contains: d.contains,
                             },
-                            x: d.x,
-                            y: d.y - INTERACTION_OFFSET_Y,
-                            radius: d.r,
+                            scale: scale,
+                            x: d.x * scale,
+                            y: d.y * scale - INTERACTION_OFFSET_Y + heightOffset,
+                            radius: d.r * scale,
                         });
                     }
                 })(d).bind(this), Math.random() * PAINT_TIME);
@@ -342,6 +354,7 @@ var PaintedWorld = Vue.component('painted-world', {
         },
 
         speckleCanvas: function (colorTheme, hueShift) {
+            var scale = Math.min(WIDTH, document.body.clientWidth) / WIDTH;
             var numSplatters = Math.floor(Math.random() * 40) + 5;
             for (var i = 0; i < numSplatters; i++) {
                 setTimeout(function () {
@@ -349,7 +362,7 @@ var PaintedWorld = Vue.component('painted-world', {
 
                     this.painter.paint(
                         {
-                            cx: Math.random() * this.width,
+                            cx: Math.random() * this.width * scale,
                             cy: Math.random() * this.height,
                             radius: size,
                             hueShift: hueShift,
@@ -416,8 +429,8 @@ var PaintedWorld = Vue.component('painted-world', {
         setup: function () {
 
             var target = this.target;
-            var width = 900;//document.documentElement.clientWidth - margin.left - margin.right;
-            var height = 800;
+            var width = WIDTH;//document.documentElement.clientWidth - margin.left - margin.right;
+            var height = HEIGHT;
 
             var paintedWorld = d3.select('.js-painted-world');
             var canvasContainer = paintedWorld.select('.js-canvas');
@@ -559,6 +572,31 @@ var PaintedWorld = Vue.component('painted-world', {
         this.setup();
         this.createLayout();
         this.paint();
+
+        //https://davidwalsh.name/javascript-debounce-function
+        var debounce = function(func, wait, immediate) {
+            var timeout;
+            return function() {
+                var context = this, args = arguments;
+                var later = function() {
+                    timeout = null;
+                    if (!immediate) func.apply(context, args);
+                };
+                var callNow = immediate && !timeout;
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+                if (callNow) func.apply(context, args);
+            };
+        };
+
+        d3.select(window).on('resize', debounce(function () {
+            if (this.canInteract) {
+                this.reset();
+            }
+            else {
+                this.repaintOnComplete = true;
+            }
+        }, 300).bind(this));
     },
 });
 
