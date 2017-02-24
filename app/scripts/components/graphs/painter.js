@@ -42,6 +42,7 @@ function Painter (opts) {
 
         // Written as a promise chain to support Firefox and Safari doing async saving of the canvas
         paint: function (brush, onComplete) {
+            var savedOptions = {};
             var ctx = this.addCanvas();
             this.reset(ctx);
 
@@ -58,7 +59,8 @@ function Painter (opts) {
             var y = brush.cy - radius;
             var hueShift = brush.hueShift;
 
-            var brushIndex = Math.floor(Math.random() * brushMasks.length);
+            var brushIndex = brush.brushIndex || Math.floor(Math.random() * brushMasks.length);
+            savedOptions.brushIndex = brushIndex;
 
             // var invertedMask = brush.invertedMask;
             var colorTheme = brush.colorTheme;
@@ -97,9 +99,11 @@ function Painter (opts) {
                 }
                 // color
                 ctx.globalCompositeOperation = 'source-atop';
-                // var scale = 1.5;
-                var colorX = /*-x * scale;//*/-Math.random() * (colorTheme.naturalWidth - brushWidth) + brushOffset.x;
-                var colorY = /*-y * scale;//*/-Math.random() * (colorTheme.naturalHeight - brushHeight) + brushOffset.y;
+
+                var colorX = brush.colorX || -Math.random() * (colorTheme.naturalWidth - brushWidth) + brushOffset.x;
+                var colorY = brush.colorY || -Math.random() * (colorTheme.naturalHeight - brushHeight) + brushOffset.y;
+                savedOptions.colorX = colorX;
+                savedOptions.colorY = colorY;
 
                 ctx.drawImage(colorTheme, colorX, colorY, colorTheme.naturalWidth, colorTheme.naturalHeight);
                 ctx.globalCompositeOperation = 'source-over';
@@ -150,7 +154,7 @@ function Painter (opts) {
                 composite = layer;
 
                 this.reset(ctx);
-                this.paintRotated(ctx, composite);
+                savedOptions.brushAngle = this.paintRotated(ctx, composite, brush.brushAngle);
                 return this.saveLayer(ctx);
             }.bind(this))
 
@@ -171,22 +175,28 @@ function Painter (opts) {
                 this.removeCanvas(ctx);
             }.bind(this))
 
+            .then(function () {
+                return savedOptions;
+            })
+
             .catch(function (e) {
                 console.error(e);
             });
+
         },
 
-        paintRotated: function (ctx, img) {
+        paintRotated: function (ctx, img, brushAngle) {
             var canvasWidth = ctx.canvas.width;
             var canvasHeight = ctx.canvas.height;
             ctx.save();
-            var angle = Math.random() * 2;
+            var angle = brushAngle || Math.random() * Math.PI * 2;
 
             ctx.translate(canvasWidth / 2, canvasHeight / 2);
             ctx.rotate(angle);
             ctx.drawImage(img, -canvasWidth / 2, -canvasHeight / 2, canvasWidth, canvasHeight);
 
             ctx.restore();
+            return angle;
         },
 
         paintEdge: function (ctx, invertedMask) {

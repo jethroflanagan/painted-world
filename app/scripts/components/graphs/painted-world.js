@@ -201,6 +201,7 @@ var PaintedWorld = Vue.component('painted-world', {
             percentLoaded: 0,
             isLogVisible: false,
             repaintOnComplete: false, // for repainting on window resize
+            paintOptions: {},
         };
     },
     methods: {
@@ -210,6 +211,7 @@ var PaintedWorld = Vue.component('painted-world', {
         },
 
         reset: function () {
+            this.paintOptions = {};
             this.createLayout();
             this.paint();
         },
@@ -234,7 +236,60 @@ var PaintedWorld = Vue.component('painted-world', {
         //     var container = d3.select(e.currentTarget);
         // },
 
-        paint: function (scale) {
+        saveToLog: function () {
+            var imgData = this.ctx.canvas.toDataURL('image/png');
+            var container = d3.select('.js-log-preview')
+                .insert('div', ':first-child')
+                .attr({
+                    'class': 'Preview',
+                });
+
+
+            var img = container
+                .append('img')
+                .attr({
+                    src: imgData,
+                    'class': 'Preview-image',
+                });
+
+            container
+                .append('a')
+                .attr({
+                    download: 'painted-world.png',
+                    'class': 'Preview-download js-download',
+                })
+                    .append('span')
+                    .attr({
+                        'class': 'Preview-downloadText',
+                    })
+                    .text('Download');
+            
+            // dataURL is expensive to hover over/out (decodes image, resolves address), so only add the url on click
+            var downloadBtn = container.select('.js-download')
+            downloadBtn.on('click', function () {
+                downloadBtn.attr({
+                    'href': imgData,
+                });
+                // turn it off again to regain performance
+                setTimeout(function () {
+                    downloadBtn.attr({
+                        'href': '',
+                    });
+                }, 1);
+            });
+
+            var previewElList = document.querySelectorAll('.Preview');
+            if (previewElList.length > MAX_LOGGED_ITEMS) {
+                var previewEl = previewElList[previewElList.length - 1];
+                container.select('.js-download').on('click', null);
+                previewEl.remove();
+            }
+        },
+
+        paint: function (repaintPrevious) {
+            var opts = this.paintOptions;
+            opts.brushes = this.paintOptions.brushes || [];
+
             var scale = Math.min(WIDTH, document.body.clientWidth) / WIDTH;
             var heightOffset = (HEIGHT - scale * HEIGHT) / 2;
             this.setInteractionAllowed(false);
@@ -246,72 +301,37 @@ var PaintedWorld = Vue.component('painted-world', {
 
             ctx.clearRect(0, 0, width, height);
             var i = 0;
-            var colorIndex = Math.floor(Math.random() * this.images.colorThemes.length);
-            var colorTheme = this.images.colorThemes[colorIndex].image;
-            var hues = this.images.colorThemes[colorIndex].hues;
+            var colorIndex = opts.colorIndex || Math.floor(Math.random() * this.images.colorThemes.length);
+            var colorTheme = opts.colorTheme || this.images.colorThemes[colorIndex].image;
+            var hues = opts.hues || this.images.colorThemes[colorIndex].hues;
             var hueShift = 0;
             if (this.isHueShiftAllowed) {
-                hueShift = hues[Math.floor(Math.random() * hues.length)];
+                hueShift = opts.hueShift || hues[Math.floor(Math.random() * hues.length)];
             }
-            var canvasTheme = this.images.canvases[Math.floor(Math.random() * this.images.canvases.length)];
+            var canvasTheme = opts.canvasTheme || this.images.canvases[Math.floor(Math.random() * this.images.canvases.length)];
             var count = nodes.length;
+
+            opts.colorIndex = colorIndex;
+            opts.colorTheme = colorTheme;
+            opts.hues = hues;
+            opts.hueShift = hueShift;
+            opts.canvasTheme = canvasTheme;
+
             var onCompletePaint = function () {
                 if (--count <= 0) {
                     if (this.repaintOnComplete) {
-                        this.reset();
+                        // this.reset();
                         this.repaintOnComplete = false;
+                        this.paint(true);
                         return;
                     }
 
                     this.setInteractionAllowed(true);
 
+
                     // save to log
-                    var imgData = this.ctx.canvas.toDataURL('image/png');
-                    var container = d3.select('.js-log-preview')
-                        .insert('div', ':first-child')
-                        .attr({
-                            'class': 'Preview',
-                        });
-
-
-                    var img = container
-                        .append('img')
-                        .attr({
-                            src: imgData,
-                            'class': 'Preview-image',
-                        });
-
-                    container
-                        .append('a')
-                        .attr({
-                            download: 'painted-world.png',
-                            'class': 'Preview-download js-download',
-                        })
-                            .append('span')
-                            .attr({
-                                'class': 'Preview-downloadText',
-                            })
-                            .text('Download');
-                    
-                    // dataURL is expensive to hover over/out (decodes image, resolves address), so only add the url on click
-                    var downloadBtn = container.select('.js-download')
-                    downloadBtn.on('click', function () {
-                        downloadBtn.attr({
-                            'href': imgData,
-                        });
-                        // turn it off again to regain performance
-                        setTimeout(function () {
-                            downloadBtn.attr({
-                                'href': '',
-                            });
-                        }, 1);
-                    });
-
-                    var previewElList = document.querySelectorAll('.Preview');
-                    if (previewElList.length > MAX_LOGGED_ITEMS) {
-                        var previewEl = previewElList[previewElList.length - 1];
-                        container.select('.js-download').on('click', null);
-                        previewEl.remove();
+                    if (!repaintPrevious) {
+                        this.saveToLog();
                     }
                 }
             }.bind(this);
@@ -319,20 +339,34 @@ var PaintedWorld = Vue.component('painted-world', {
             // draw canvas at start so it's not so empty while things process
             this.ctx.drawImage(canvasTheme, 0, 0, this.width, this.height);
 
+            // move canvas left to keep painting at center
+            var scalePositionOffset = {
+                x: (WIDTH - WIDTH * scale) / 2,
+            };
+            d3.select(this.ctx.canvas).style({left: -scalePositionOffset.x + 'px'});
+
             for (i = 0; i < nodes.length; i++) {
                 var d = nodes[i];
-                setTimeout((function (d) {
+                setTimeout((function (d, i) {
+                    var savedBrush = opts.brushes[i] || {};
                     return function () {
                         this.painter.paint(
                             {
-                                cx: d.x * scale,
+                                cx: d.x * scale + scalePositionOffset.x, // offset painting to keep it in center for small resizes
                                 cy: d.y * scale + heightOffset,
                                 radius: d.r * scale,
                                 colorTheme: colorTheme,
                                 hueShift: hueShift,
+                                colorX: savedBrush.colorX,
+                                colorY: savedBrush.colorY,
+                                brushIndex: savedBrush.brushIndex,
+                                brushAngle: savedBrush.brushAngle,
                             },
                             onCompletePaint
-                        );
+                        )
+                            .then(function (brushOptions) {
+                                this.paintOptions.brushes[i] = brushOptions;
+                            }.bind(this));
 
                         this.labeler.write({
                             group: {
@@ -346,14 +380,15 @@ var PaintedWorld = Vue.component('painted-world', {
                             y: d.y * scale - INTERACTION_OFFSET_Y + heightOffset,
                             radius: d.r * scale,
                         });
+
                     }
-                })(d).bind(this), Math.random() * PAINT_TIME);
+                })(d,i).bind(this), repaintPrevious ? 0 : Math.random() * PAINT_TIME);
                 // console.log('loading', Math.floor((i + 1) / nodes.length  * 100));
             }
-            this.speckleCanvas(colorTheme, hueShift);
+            this.speckleCanvas(colorTheme, hueShift, repaintPrevious);
         },
 
-        speckleCanvas: function (colorTheme, hueShift) {
+        speckleCanvas: function (colorTheme, hueShift, repaintPrevious) {
             var scale = Math.min(WIDTH, document.body.clientWidth) / WIDTH;
             var numSplatters = Math.floor(Math.random() * 40) + 5;
             for (var i = 0; i < numSplatters; i++) {
@@ -372,7 +407,7 @@ var PaintedWorld = Vue.component('painted-world', {
                                 : Math.random() * 0.3 + 0.1,
                         }
                     );
-                }.bind(this), Math.random() * PAINT_TIME / 2);
+                }.bind(this), repaintPrevious ? 0 : Math.random() * PAINT_TIME / 2);
                 // console.log('loading', Math.floor((i + 1) / nodes.length  * 100));
             }
         },
@@ -591,7 +626,7 @@ var PaintedWorld = Vue.component('painted-world', {
 
         d3.select(window).on('resize', debounce(function () {
             if (this.canInteract) {
-                this.reset();
+                this.paint(true);
             }
             else {
                 this.repaintOnComplete = true;

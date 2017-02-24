@@ -20,5 +20,15 @@
         </div>
         <script src="scripts/painted-world-vendor.js"></script>
         <script src="scripts/painted-world-app.js"></script>
+
+        <script>
+            d3.json('data/aggregate.json', function (data) {
+                document.querySelector('.js-painting')
+                    .dispatchEvent(new CustomEvent('data', {
+                        detail: data,
+                    })
+                );
+            });
+        </script>
     </body>
 </html>
