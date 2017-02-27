@@ -305,19 +305,17 @@ var PaintedWorld = Vue.component('painted-world', {
 
             ctx.clearRect(0, 0, width, height);
             var i = 0;
-            var colorIndex = opts.colorIndex || Math.floor(Math.random() * this.images.colorThemes.length);
+            var colorIndex = opts.colorIndex != null ? opts.colorIndex : Math.floor(Math.random() * this.images.colorThemes.length);
             var colorTheme = opts.colorTheme || this.images.colorThemes[colorIndex].image;
             var hues = opts.hues || this.images.colorThemes[colorIndex].hues;
             var hueShift = 0;
             if (this.isHueShiftAllowed) {
-                hueShift = opts.hueShift || hues[Math.floor(Math.random() * hues.length)];
-                console.log('hueshift', hueShift);
+                hueShift = opts.hueShift != null ? opts.hueShift : hues[Math.floor(Math.random() * hues.length)];
             }
             var canvasTheme = opts.canvasTheme || this.images.canvases[Math.floor(Math.random() * this.images.canvases.length)];
             var count = nodes.length;
 
             opts.colorIndex = colorIndex;
-            console.log('paint', colorIndex);
             opts.colorTheme = colorTheme;
             opts.hues = hues;
             opts.hueShift = hueShift;
@@ -334,7 +332,6 @@ var PaintedWorld = Vue.component('painted-world', {
                     }
 
                     this.setInteractionAllowed(true);
-
 
                     // save to log
                     if (!repaintPrevious) {
