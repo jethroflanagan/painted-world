@@ -102,6 +102,13 @@ function Painter (opts) {
 
                 var colorX = brush.colorX || -Math.random() * (colorTheme.naturalWidth - brushWidth) + brushOffset.x;
                 var colorY = brush.colorY || -Math.random() * (colorTheme.naturalHeight - brushHeight) + brushOffset.y;
+
+                // repainting with old colors, but resizing bigger can make it go off canvas
+                if (brush.colorX) {
+                    colorX = Math.min(0, Math.max(colorX, -(colorTheme.naturalWidth - brushWidth) + brushOffset.x));
+                    colorY = Math.min(0, Math.max(colorY, -(colorTheme.naturalHeight - brushHeight) + brushOffset.y));
+                }
+
                 savedOptions.colorX = colorX;
                 savedOptions.colorY = colorY;
 

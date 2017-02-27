@@ -4,13 +4,13 @@ var PaintControls = Vue.component('paint-controls', {
     // inline style needs to be forced for text decoration to handle :visited for some reason
     template: `
         <div class="PaintControls" :class="{ 'PaintControls--disabled': !isEnabled }">
-            <a class="Button Button--reset js-resetBtn" 
+            <a class="Button Button--reset js-resetBtn"
                 :class="{ 'Button--disabled': !isEnabled }"
             >
                 <span>Paint another</span>
             </a>
             <a class="Button Button--download js-downloadBtn" 
-                download="painted-world.png" 
+                download="painted-world.png"
                 style="text-decoration:none" 
                 :class="{ 
                     'Button--disabled': !isEnabled,
@@ -25,8 +25,7 @@ var PaintControls = Vue.component('paint-controls', {
                 :class="{ 'Checkbox--disabled': !isEnabled }"
             >
                 <input class="Checkbox-field" type="checkbox" id="grouped"
-                    @click="updateGrouped"
-                    checked>
+                    @click="updateGrouped">
                 <span class="Checkbox-box"></span>
                 <span class="Checkbox-label">Group similar <span>categories</span></span>
             </label>
@@ -37,6 +36,7 @@ var PaintControls = Vue.component('paint-controls', {
         'download',
         'showLog',
         'isEnabled',
+        'isGrouped',
         'ctx',
         'isLogVisible',
     ],
@@ -44,7 +44,6 @@ var PaintControls = Vue.component('paint-controls', {
         return {
             resetBtn: null,
             downloadBtn: null,
-            isGrouped: true,
             get width () {
                 if (!this.ctx) return 0;
                 return this.ctx.canvas.width;

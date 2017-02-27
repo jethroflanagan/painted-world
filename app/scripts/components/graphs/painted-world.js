@@ -160,6 +160,7 @@ var PaintedWorld = Vue.component('painted-world', {
                     :reset="reset"
                     :download="download"
                     :showLog="showLog"
+                    :isGrouped="isGrouped"
                     :isEnabled="canInteract"
                     :isLogVisible="isLogVisible"
                     :ctx="ctx"
@@ -196,12 +197,13 @@ var PaintedWorld = Vue.component('painted-world', {
             //     canvases: [],
             // },
             painter: null,
-            isGrouped: true,
+            isGrouped: false,
             isHueShiftAllowed: true,
             percentLoaded: 0,
             isLogVisible: false,
             repaintOnComplete: false, // for repainting on window resize
             paintOptions: {},
+            lastWidth: 0, // resizing
         };
     },
     methods: {
@@ -291,6 +293,8 @@ var PaintedWorld = Vue.component('painted-world', {
             opts.brushes = this.paintOptions.brushes || [];
 
             var scale = Math.min(WIDTH, document.body.clientWidth) / WIDTH;
+            this.lastWidth = document.body.clientWidth; // update for resize
+
             var heightOffset = (HEIGHT - scale * HEIGHT) / 2;
             this.setInteractionAllowed(false);
             this.labeler.cleanup();
@@ -307,11 +311,13 @@ var PaintedWorld = Vue.component('painted-world', {
             var hueShift = 0;
             if (this.isHueShiftAllowed) {
                 hueShift = opts.hueShift || hues[Math.floor(Math.random() * hues.length)];
+                console.log('hueshift', hueShift);
             }
             var canvasTheme = opts.canvasTheme || this.images.canvases[Math.floor(Math.random() * this.images.canvases.length)];
             var count = nodes.length;
 
             opts.colorIndex = colorIndex;
+            console.log('paint', colorIndex);
             opts.colorTheme = colorTheme;
             opts.hues = hues;
             opts.hueShift = hueShift;
@@ -322,6 +328,7 @@ var PaintedWorld = Vue.component('painted-world', {
                     if (this.repaintOnComplete) {
                         // this.reset();
                         this.repaintOnComplete = false;
+                        console.log('repaint', colorIndex);
                         this.paint(true);
                         return;
                     }
@@ -625,6 +632,7 @@ var PaintedWorld = Vue.component('painted-world', {
         };
 
         d3.select(window).on('resize', debounce(function () {
+            if (document.body.clientWidth >= WIDTH && this.lastWidth >= WIDTH) return;
             if (this.canInteract) {
                 this.paint(true);
             }
