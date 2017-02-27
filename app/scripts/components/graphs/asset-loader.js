@@ -1,8 +1,9 @@
 import './painted-world';
+import { applyCssModule } from '../../helpers';
 
 var AssetLoader = Vue.component('asset-loader', {
     // inline style needs to be forced for text decoration to handle :visited for some reason
-    template: `
+    template: applyCssModule(`
         <div>
             <div class="AssetLoader" v-if="!isLoaded">
                 <div>Loading... </div>
@@ -13,7 +14,7 @@ var AssetLoader = Vue.component('asset-loader', {
                 :images="images"
             ></painted-world>
         </div>
-    `,
+    `),
     props: [
     ],
     data() {

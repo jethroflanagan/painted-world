@@ -1,8 +1,8 @@
-// import { colors } from './../../config';
 import { aggregateService } from '../../service/aggregate-service';
 import { Painter } from './painter';
 import { Labeler } from './labeler';
 import { PaintControls } from './paint-controls';
+import { applyCssModule } from '../../helpers';
 
 const generateUUID = () => {
     var d = new Date().getTime();
@@ -151,9 +151,9 @@ var WIDTH = 900;
 var HEIGHT = 800;
 var PaintedWorld = Vue.component('painted-world', {
     // inline style needs to be forced for text decoration to handle :visited for some reason
-    template: `
+    template: applyCssModule(`
         <div class="Painting">
-            <div class="js-painted-world PaintedWorld">
+            <div class="slidedsadasdas js-painted-world PaintedWorld">
                 <div class="Offscreen js-offscreen"></div>
                 <div class="js-canvas"></div>
                 <paint-controls
@@ -177,7 +177,7 @@ var PaintedWorld = Vue.component('painted-world', {
                 <div class="Log-preview js-log-preview"></div>
             </div>
         </div>
-    `,
+    `),
     props: [
         'data',
         'images',
@@ -230,20 +230,12 @@ var PaintedWorld = Vue.component('painted-world', {
             this.canInteract = isAllowed;
         },
 
-        // downloadPrevious: function (e) {
-        //     var ctx = e.currentTarget.querySelector('.Preview-image');
-        //     // this.ctx.globalCompositeOperation = 'source-over';
-        //     // this.ctx.drawImage(e.currentTarget.querySelector('.Preview-image'), 0, 0, this.width, this.height);
-
-        //     var container = d3.select(e.currentTarget);
-        // },
-
         saveToLog: function () {
             var imgData = this.ctx.canvas.toDataURL('image/png');
             var container = d3.select('.js-log-preview')
                 .insert('div', ':first-child')
                 .attr({
-                    'class': 'Preview',
+                    'class': 'Preview js-preview',
                 });
 
 
@@ -251,7 +243,7 @@ var PaintedWorld = Vue.component('painted-world', {
                 .append('img')
                 .attr({
                     src: imgData,
-                    'class': 'Preview-image',
+                    'class': 'Preview-image js-preview-image',
                 });
 
             container
@@ -259,6 +251,7 @@ var PaintedWorld = Vue.component('painted-world', {
                 .attr({
                     download: 'painted-world.png',
                     'class': 'Preview-download js-download',
+                    target: '_blank',
                 })
                     .append('span')
                     .attr({
@@ -280,7 +273,7 @@ var PaintedWorld = Vue.component('painted-world', {
                 }, 1);
             });
 
-            var previewElList = document.querySelectorAll('.Preview');
+            var previewElList = document.querySelectorAll('.js-preview');
             if (previewElList.length > MAX_LOGGED_ITEMS) {
                 var previewEl = previewElList[previewElList.length - 1];
                 container.select('.js-download').on('click', null);
@@ -326,7 +319,6 @@ var PaintedWorld = Vue.component('painted-world', {
                     if (this.repaintOnComplete) {
                         // this.reset();
                         this.repaintOnComplete = false;
-                        console.log('repaint', colorIndex);
                         this.paint(true);
                         return;
                     }
@@ -595,11 +587,9 @@ var PaintedWorld = Vue.component('painted-world', {
         },
 
         closeLog: function () {
-            console.log('hide');
             this.isLogVisible = false;
         },
         showLog: function () {
-            console.log('show');
             this.isLogVisible = true;
         },
     },
@@ -629,7 +619,7 @@ var PaintedWorld = Vue.component('painted-world', {
         };
 
         d3.select(window).on('resize', debounce(function () {
-            if (document.body.clientWidth >= WIDTH && this.lastWidth >= WIDTH) return;
+            if ((document.body.clientWidth >= WIDTH && this.lastWidth >= WIDTH) || this.lastWidth === document.body.clientWidth) return;
             if (this.canInteract) {
                 this.paint(true);
             }

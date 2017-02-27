@@ -1,3 +1,5 @@
+import { resolveClasses } from '../../helpers';
+
 function Labeler (opts) {
     var outputEl = opts.outputEl;
     var interactionEl = opts.interactionEl;
@@ -82,8 +84,7 @@ function Labeler (opts) {
         },
 
         createInteractionLayer: function (x, y, radius, label) {
-            var hitlayer = document.createElement('div');
-            hitlayer.setAttribute('class', 'Label-hit');
+            var hitlayer = this.addLayer(interactionEl, 'Label-hit')
 
             hitlayer.setAttribute('style', [
                 'left:' + (x - radius) + 'px',
@@ -92,12 +93,11 @@ function Labeler (opts) {
                 'height:' + radius * 2 + 'px',
             ].join(';'));
 
-            interactionEl.appendChild(hitlayer);
             hitlayer.addEventListener('mouseover', function (e) {
-                label.setAttribute('class', 'Label Label--show');
+                label.setAttribute('class', resolveClasses('Label Label--show'));
             });
             hitlayer.addEventListener('mouseout', function (e) {
-                label.setAttribute('class', 'Label Label--hide');
+                label.setAttribute('class', resolveClasses('Label Label--hide'));
             });
             elements.push(hitlayer);
             // hitlayer.addEventListener('touchstart', function (e) {
@@ -120,7 +120,7 @@ function Labeler (opts) {
 
         addLayer: function (parent, className, text) {
             var layer = document.createElement('span');
-            layer.setAttribute('class', className);
+            layer.setAttribute('class', resolveClasses(className));
             if (parent) {
                 parent.appendChild(layer);
             }

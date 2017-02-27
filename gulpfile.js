@@ -22,6 +22,7 @@ var sourcemaps          = require('gulp-sourcemaps');
 var babel               = require('gulp-babel');
 var rollup              = require('gulp-rollup');
 var rollupIncludePaths  = require('rollup-plugin-includepaths');
+var cssModules          = require('./gulp-css-modules');
 
 gulp.task('browserSync', function() {
     browserSync({
@@ -109,6 +110,7 @@ gulp.task('styles', function() {
                 .on('error', gutil.log)
                 //the final filename of our combined css file
                 .pipe(concat('painted-world.css'))
+                .pipe(cssModules('component-PaintBySpending_'))
                 //get our sources via sourceMaps
                 .pipe(sourceMaps.write())
                 //where to save our final, compressed css file
@@ -132,6 +134,7 @@ gulp.task('styles:prod', function() {
                 }))
                 //the final filename of our combined css file
                 .pipe(concat('_painted-world.scss'))
+                .pipe(cssModules('component-PaintBySpending_'))
                 .pipe(gulp.dest('.dist/styles'))
                 .pipe(browserSync.reload({stream: true}));
 });

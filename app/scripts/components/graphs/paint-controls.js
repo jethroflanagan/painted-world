@@ -1,22 +1,22 @@
-import { TextInput } from './text-input';
+import { applyCssModule } from '../../helpers';
 
 var PaintControls = Vue.component('paint-controls', {
     // inline style needs to be forced for text decoration to handle :visited for some reason
-    template: `
+    template: applyCssModule(`
         <div class="PaintControls" :class="{ 'PaintControls--disabled': !isEnabled }">
             <a class="Button Button--reset js-resetBtn"
                 :class="{ 'Button--disabled': !isEnabled }"
             >
                 <span>Paint another</span>
             </a>
-            <a class="Button Button--download js-downloadBtn" 
+            <a class="Button Button--download js-downloadBtn"
                 download="painted-world.png"
-                style="text-decoration:none" 
+                style="text-decoration:none"
                 :class="{ 
                     'Button--disabled': !isEnabled,
                     'Button--hidden': isLogVisible,
                 }"
-                
+
             >
                 <span>Download</span>
             </a>
@@ -30,7 +30,7 @@ var PaintControls = Vue.component('paint-controls', {
                 <span class="Checkbox-label">Group similar <span>categories</span></span>
             </label>
         </div>
-    `,
+    `),
     props: [
         'reset',
         'download',
