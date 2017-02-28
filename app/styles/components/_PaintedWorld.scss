@@ -2,7 +2,7 @@ $bp: 600px;
 $imagePath: '../images/painted-world/';
 $font: 'Titillium Web';
 
-.Painting {
+.#{$module}Painting {
 
     position: relative;
     user-select: none;
@@ -13,18 +13,18 @@ $font: 'Titillium Web';
     display: inline-block;
 }
 // transform: scale(0.5) translate(-50%, -50%);
-.Canvas {
+.#{$module}Canvas {
     border-radius: 4px;
     overflow: hidden;
 }
-.PaintedWorld {
+.#{$module}PaintedWorld {
     position: relative;
     width: 100%;
     height: 800px;
     overflow: hidden;
     border-radius: 4px;
 }
-.Label {
+.#{$module}Label {
     $anim: 0.3s ease-out .1s;
     $animOut: 0.15s ease-out 0.15s;
     position: absolute;
@@ -59,7 +59,7 @@ $font: 'Titillium Web';
     // border: 1px solid #000;
 }
 
-.LabelText {
+.#{$module}LabelText {
     font-family: $font;
     position: absolute;
     width: 230px;
@@ -121,7 +121,7 @@ $font: 'Titillium Web';
     }
 }
 
-.Label-hit {
+.#{$module}Label-hit {
     // background: red;
     // width: 100px;
     // height: 100px;
@@ -132,7 +132,7 @@ $font: 'Titillium Web';
     cursor: pointer;
 }
 
-.PaintControls {
+.#{$module}PaintControls {
     display: block;
     position: relative;
     &--disabled {
@@ -140,7 +140,7 @@ $font: 'Titillium Web';
     }
 }
 
-a.Button {
+a.#{$module}Button {
     position: absolute;
     padding: 10px 20px;
     padding-left: 40px;
@@ -218,7 +218,7 @@ a.Button {
         span {
             display: none;
         }
-        &:not(.Button--close) {
+        &:not(.#{$module}Button--close) {
             padding-left: 20px;
         }
         background-position: 10px 10px;
@@ -226,11 +226,11 @@ a.Button {
     }
 }
 
-.Offscreen {
+.#{$module}Offscreen {
     display: none;
 }
 
-.Checkbox {
+.#{$module}Checkbox {
     $cross1Transform: rotate(45deg) translate(7px, 6px);
     $cross2Transform: rotate(-45deg) translate(-4px, 6px);
 
@@ -253,18 +253,18 @@ a.Button {
         //opacity: 0.5;
         display: none;
         // appearance: none;
-        &:hover + .Checkbox-box,
-        &:focus + .Checkbox-box,
-        &:active + .Checkbox-box {
+        &:hover + .#{$module}Checkbox-box,
+        &:focus + .#{$module}Checkbox-box,
+        &:active + .#{$module}Checkbox-box {
             background: rgba(0, 0, 0, 0.2);
             box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.3);
         }
-        &:hover ~ .Checkbox-label,
-        &:focus ~ .Checkbox-label,
-        &:active ~ .Checkbox-label {
+        &:hover ~ .#{$module}Checkbox-label,
+        &:focus ~ .#{$module}Checkbox-label,
+        &:active ~ .#{$module}Checkbox-label {
             color: rgba(0,0,0,0.9);
         }
-        &:checked + .Checkbox-box {
+        &:checked + .#{$module}Checkbox-box {
             &:before {
                 transform: $cross1Transform scale(1,1);
             }
@@ -336,12 +336,12 @@ a.Button {
         }
     }
     &--disabled {
-        .Checkbox-field[type="checkbox"] {
-            & .Checkbox-label,
-            &:hover ~ .Checkbox-label,
-            &:active ~ .Checkbox-label,
-            &:focus ~ .Checkbox-label,
-            &:hover .Checkbox-label {
+        .#{$module}Checkbox-field[type="checkbox"] {
+            & .#{$module}Checkbox-label,
+            &:hover ~ .#{$module}Checkbox-label,
+            &:active ~ .#{$module}Checkbox-label,
+            &:focus ~ .#{$module}Checkbox-label,
+            &:hover .#{$module}Checkbox-label {
                 color: rgba(0,0,0,0.3);
             }
         }
@@ -351,7 +351,7 @@ a.Button {
     }
 
     @media(max-width: $bp) {
-        .Checkbox-label span {
+        .#{$module}Checkbox-label span {
             display: none;
         }
         left: 100px;
@@ -359,7 +359,7 @@ a.Button {
     }
 }
 
-.Log {
+.#{$module}Log {
     position: absolute;
     top: 0;
     padding: 10px;
@@ -381,7 +381,7 @@ a.Button {
     }
 }
 
-.Preview {
+.#{$module}Preview {
     padding: 2px;
     display: inline-block;
     margin: 3px;
@@ -424,10 +424,10 @@ a.Button {
             transition: opacity 0.3s linear;
         }
     }
-    &:hover .Preview-download {
+    &:hover .#{$module}Preview-download {
         background: rgba(0, 0, 0, .6);
     }
-    &:hover .Preview-downloadText {
+    &:hover .#{$module}Preview-downloadText {
         opacity: 1;
     }
     // &-stats {

@@ -2,7 +2,7 @@ import { aggregateService } from '../../service/aggregate-service';
 import { Painter } from './painter';
 import { Labeler } from './labeler';
 import { PaintControls } from './paint-controls';
-import { applyCssModule } from '../../helpers';
+import { applyCssModule, resolveClasses } from '../../helpers';
 
 const generateUUID = () => {
     var d = new Date().getTime();
@@ -235,7 +235,7 @@ var PaintedWorld = Vue.component('painted-world', {
             var container = d3.select('.js-log-preview')
                 .insert('div', ':first-child')
                 .attr({
-                    'class': 'Preview js-preview',
+                    'class': resolveClasses('Preview js-preview'),
                 });
 
 
@@ -243,19 +243,19 @@ var PaintedWorld = Vue.component('painted-world', {
                 .append('img')
                 .attr({
                     src: imgData,
-                    'class': 'Preview-image js-preview-image',
+                    'class': resolveClasses('Preview-image js-preview-image'),
                 });
 
             container
                 .append('a')
                 .attr({
                     download: 'painted-world.png',
-                    'class': 'Preview-download js-download',
+                    'class': resolveClasses('Preview-download js-download'),
                     target: '_blank',
                 })
                     .append('span')
                     .attr({
-                        'class': 'Preview-downloadText',
+                        'class': resolveClasses('Preview-downloadText'),
                     })
                     .text('Download');
             

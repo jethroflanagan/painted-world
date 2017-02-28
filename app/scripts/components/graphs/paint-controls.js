@@ -12,7 +12,7 @@ var PaintControls = Vue.component('paint-controls', {
             <a class="Button Button--download js-downloadBtn"
                 download="painted-world.png"
                 style="text-decoration:none"
-                :class="{ 
+                :class="{
                     'Button--disabled': !isEnabled,
                     'Button--hidden': isLogVisible,
                 }"
