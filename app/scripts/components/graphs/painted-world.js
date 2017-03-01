@@ -287,9 +287,7 @@ var PaintedWorld = Vue.component('painted-world', {
         },
 
         paint: function (repaintPrevious) {
-                console.log('paint');
             if (!this.isFirstPainting && !this.canInteract) {
-                console.log('nope');
                 this.repaintOnComplete = true;
                 return;
             }
@@ -328,7 +326,6 @@ var PaintedWorld = Vue.component('painted-world', {
             var onCompletePaint = (function () {
                 var count = nodes.length;
                 return function () {
-                    console.log('PAINT PROGRESS', count);
                     if (--count <= 0) {
                         if (this.repaintOnComplete) {
                             // this.reset();

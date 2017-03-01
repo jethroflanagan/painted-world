@@ -115,7 +115,6 @@ var AssetLoader = Vue.component('asset-loader', {
                 }.bind(this))
             )
                 .then(function (images) {
-                    console.log('loaded images', images);
                     var i = 0;
                     var incr = 4;
                     for (i = 0; i < incr; i++) {
@@ -159,13 +158,14 @@ var AssetLoader = Vue.component('asset-loader', {
             return promise;
         },
         onComplete: function () {
-            console.log('IS COMPLETE');
             // this.isLoaded = true;
         },
     },
     mounted: function () {
-        EventBus.$on(AGGREGATE_EVENT, () => {
-            this.isLoaded = true;
+        EventBus.$on(AGGREGATE_EVENT, (e) => {
+            setTimeout(() => {
+                this.isLoaded = true;
+            }, 500);
         });
 
         this.loadAll();
