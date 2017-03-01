@@ -163,9 +163,11 @@ var AssetLoader = Vue.component('asset-loader', {
     },
     mounted: function () {
         EventBus.$on(AGGREGATE_EVENT, (e) => {
+
+            // sigh
             setTimeout(() => {
                 this.isLoaded = true;
-            }, 500);
+            }, 300);
         });
 
         this.loadAll();

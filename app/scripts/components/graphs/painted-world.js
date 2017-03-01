@@ -329,6 +329,7 @@ var PaintedWorld = Vue.component('painted-world', {
                     if (--count <= 0) {
                         if (this.repaintOnComplete) {
                             // this.reset();
+                            this.canInteract = true;
                             this.repaintOnComplete = false;
                             this.paint(true);
                             return;
@@ -628,7 +629,14 @@ var PaintedWorld = Vue.component('painted-world', {
                 this.paint(true);
         }, 300).bind(this));
 
-        EventBus.$on(AGGREGATE_EVENT, this.reset);
+        EventBus.$on(AGGREGATE_EVENT, () => {
+            if (this.canInteract) {
+                this.reset();
+            }
+            else {
+                this.repaintOnComplete = true;
+            }
+        });
 
         this.reset();
 
