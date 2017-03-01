@@ -8,12 +8,6 @@ function Labeler (opts) {
     var canvasHeight = opts.height;
     var nodes = opts.nodes;
     var labelImages = opts.labelImages;
-    // convert labelImages tp data URIs
-    //
-    // ctx.drawImage(labelImages[0], 0, 0);
-    // labelImages[0] = ctx.canvas.toDataURL('image/png');
-    // console.log(labelImages[0]);
-
     var elements = [];
 
     // cater for rotation possibly cutting images off

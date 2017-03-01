@@ -16,18 +16,22 @@
     </head>
     <body>
         <div class="PaintedWorldApp js-painting">
-            <asset-loader></asset-loader>
+            <asset-loader>
+            </asset-loader>
         </div>
         <script src="scripts/painted-world-vendor.js"></script>
         <script src="scripts/painted-world-app.js"></script>
 
         <script>
             d3.json('data/aggregate.json', function (data) {
-                document.querySelector('.js-painting')
+                window.DATA = data;
+                setTimeout(() => {
+                document//.querySelector('.js-painting')
                     .dispatchEvent(new CustomEvent('data', {
                         detail: data,
                     })
                 );
+                }, 1);
             });
         </script>
     </body>

@@ -30,6 +30,5 @@ export function applyCssModule (template) {
             return partStart + resolveDynamicClasses(inner) + partEnd;
         }
     );
-    console.log(modularized);
     return modularized;
 }

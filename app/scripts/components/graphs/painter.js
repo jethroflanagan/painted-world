@@ -10,11 +10,6 @@ function Painter (opts) {
     var CANVAS_PADDING = 20;
     var methods = {
         setup: function () {
-            // var _this = this;
-            // invertedBrushMasks = _.map(brushMasks, function (mask) {
-            //     return _this.getInverted(mask, brushOffset, canvasWidth - brushOffset.x * 2, canvasHeight - brushOffset.y * 2);
-            // });
-            // console.log(invertedBrushMasks);
         },
 
         // need offscreen canvas per brush to prevent overlapping use
@@ -24,13 +19,6 @@ function Painter (opts) {
                     .attr({
                         width: 1,
                         height: 1,
-                    })
-                    .style({
-                        // filter: 'hue-rotate(100deg)':
-                        // position: 'absolute',
-                        // top: 0,
-                        // border: '1px solid #000',
-                        // left: 200,
                     })
                     .node().getContext('2d');
             return ctx;

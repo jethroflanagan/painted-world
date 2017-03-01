@@ -2,8 +2,15 @@ $bp: 600px;
 $imagePath: '../images/painted-world/';
 $font: 'Titillium Web';
 
+.PaintedWorldApp {
+    margin: 0 auto;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+}
 .#{$module}Painting {
 
+    border: 1px solid #ccc;
     position: relative;
     user-select: none;
     width: 100vw;
@@ -12,6 +19,7 @@ $font: 'Titillium Web';
     overflow: hidden;
     display: inline-block;
 }
+
 // transform: scale(0.5) translate(-50%, -50%);
 .#{$module}Canvas {
     border-radius: 4px;
@@ -438,4 +446,3 @@ a.#{$module}Button {
     //     color: #fff;
     // }
 }
-

@@ -5,6 +5,12 @@
         "**/.svn": true,
         "**/.hg": true,
         "**/.DS_Store": true,
-        ".dist": true
+        ".dist": true,
+        "app/vendor": true
+    },
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/bower_components": true,
+        "app/vendor": true
     }
 }

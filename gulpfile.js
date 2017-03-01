@@ -7,6 +7,7 @@ var gulp                = require('gulp');
 var gutil               = require('gulp-util');
 var concat              = require('gulp-concat');
 var uglify              = require('gulp-uglify');
+var { minify }          = require('uglify-js');
 var rollupUglify        = require('rollup-plugin-uglify');
 var sass                = require('gulp-sass');
 var sourceMaps          = require('gulp-sourcemaps');
@@ -68,7 +69,6 @@ gulp.task('scripts', function() {
                 rollupIncludePaths({
                     paths: ['app/js']
                 }),
-                uglify()
             ],
             entry: 'app/scripts/main.js',
         }))
@@ -78,6 +78,31 @@ gulp.task('scripts', function() {
         .pipe(concat('painted-world-app.js'))
         // .pipe(uglify())
         .pipe(sourcemaps.write())
+        .on('error', gutil.log)
+        .pipe(gulp.dest('.dist/scripts'))
+        .pipe(browserSync.reload({stream: true}));
+});
+
+gulp.task('scripts:prod', function() {
+    return gulp.src('app/scripts/**/*.js')
+        .pipe(plumber())
+        // .pipe(sourcemaps.init())
+        .pipe(rollup({
+            sourceMap: false,
+            plugins: [
+                rollupIncludePaths({
+                    paths: ['app/js']
+                }),
+                // rollupUglify({}, minify)
+            ],
+            entry: 'app/scripts/main.js',
+        }))
+        .pipe(babel({
+            presets: ['es2015']
+        }))
+        .pipe(concat('painted-world-app.js'))
+        // .pipe(uglify())
+        // .pipe(sourcemaps.write())
         .on('error', gutil.log)
         .pipe(gulp.dest('.dist/scripts'))
         .pipe(browserSync.reload({stream: true}));
@@ -121,6 +146,7 @@ gulp.task('styles', function() {
 
 gulp.task('styles:prod', function() {
     //the initializer / master SCSS file, which will just be a file that imports everything
+
     return gulp.src('app/styles/styles-prod.scss')
                 .pipe(sass({
                       errLogToConsole: true,
@@ -156,7 +182,6 @@ gulp.task('vendor', function() {
         // .pipe(include())
         // .pipe(plumber())
         .pipe(concat('painted-world-vendor.js'))
-        .pipe(uglify())
         .pipe(gulp.dest('.dist/scripts'))
         .pipe(browserSync.reload({stream: true}))
         //catch errors
@@ -217,11 +242,11 @@ gulp.task('default', function() {
 gulp.task('deploy', function() {
     gulp.run('html');
     // gulp.run('vendor:prod');
-    gulp.run('vendor');
-    gulp.run('scripts');
+    gulp.run('vendor:prod');
+    gulp.run('scripts:prod');
     gulp.run('images');
-    // gulp.run('styles:prod');
-    gulp.run('styles');
+    gulp.run('styles:prod');
+    // gulp.run('styles');
     gulp.run('data');
     gulp.run('fonts');
 });

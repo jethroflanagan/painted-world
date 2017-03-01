@@ -1,15 +1,18 @@
 import './painted-world';
 import { applyCssModule } from '../../helpers';
+import { EventBus, AGGREGATE_EVENT } from '../../event-bus';
 
 var AssetLoader = Vue.component('asset-loader', {
     // inline style needs to be forced for text decoration to handle :visited for some reason
     template: applyCssModule(`
         <div>
-            <div class="AssetLoader" v-if="!isLoaded">
+            <div class="AssetLoader" v-if="!isLoaded && percentLoaded < 100">
                 <div>Loading... </div>
                 <div>{{percentLoaded}}%</div>
             </div>
-
+            <div class="AssetLoader" v-if="!isLoaded && percentLoaded === 100">
+                <div>Set your filter to make a painting</div>
+            </div>
             <painted-world v-if="isLoaded"
                 :images="images"
             ></painted-world>
@@ -31,11 +34,9 @@ var AssetLoader = Vue.component('asset-loader', {
         };
     },
     methods: {
-
         draw: function (nodes) {
             for (i = 0; i < nodes.length; i++) {
                 var d = nodes[i];
-
             }
         },
 
@@ -106,7 +107,7 @@ var AssetLoader = Vue.component('asset-loader', {
                 'brushes/outline16.png',
             ];
 
-            var onProgress = this.trackProgress(imagesToLoad.length, this.onUpdateMain);
+            var onProgress = this.trackProgress(imagesToLoad.length, this.onUpdateMain).bind(this);
 
             var promise = Promise.all(
                 _.map(imagesToLoad, function (path) {
@@ -114,7 +115,7 @@ var AssetLoader = Vue.component('asset-loader', {
                 }.bind(this))
             )
                 .then(function (images) {
-                    // console.log('done', images);
+                    console.log('loaded images', images);
                     var i = 0;
                     var incr = 4;
                     for (i = 0; i < incr; i++) {
@@ -159,10 +160,14 @@ var AssetLoader = Vue.component('asset-loader', {
         },
         onComplete: function () {
             console.log('IS COMPLETE');
-            this.isLoaded = true;
+            // this.isLoaded = true;
         },
     },
     mounted: function () {
+        EventBus.$on(AGGREGATE_EVENT, () => {
+            this.isLoaded = true;
+        });
+
         this.loadAll();
     },
 });

@@ -67,6 +67,7 @@ var PaintControls = Vue.component('paint-controls', {
         },
     },
     mounted: function () {
+        console.log('MOUNTED');
         this.resetBtn = document.querySelector('.js-resetBtn');
         this.downloadBtn = document.querySelector('.js-downloadBtn');
         // this.logBtn = document.querySelector('.js-logBtn');

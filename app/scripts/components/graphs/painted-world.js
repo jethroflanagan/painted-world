@@ -3,6 +3,7 @@ import { Painter } from './painter';
 import { Labeler } from './labeler';
 import { PaintControls } from './paint-controls';
 import { applyCssModule, resolveClasses } from '../../helpers';
+import { EventBus, AGGREGATE_EVENT } from '../../event-bus';
 
 const generateUUID = () => {
     var d = new Date().getTime();
@@ -38,15 +39,15 @@ function organiseCategories (aggregate, isLimited) {
         'ATM & Cash': ['ATM & Cash'],
     };
     var categoryLookup = {};
-    
-    // rewrite for simpler lookups. 
+
+    // rewrite for simpler lookups.
     // Hashmap with txn category as key, name of lookup as value e.g.
     // `{"Rental": "Housing & Utilities", "Bond repayment": "Housing & Utilities"}`
     _.map(categoryMapping, function (categories, key) {
         _.map(categories, function (cat) {
             categoryLookup[cat] = key;
         });
-    
+
         return categories;
     
     });
@@ -153,7 +154,7 @@ var PaintedWorld = Vue.component('painted-world', {
     // inline style needs to be forced for text decoration to handle :visited for some reason
     template: applyCssModule(`
         <div class="Painting">
-            <div class="slidedsadasdas js-painted-world PaintedWorld">
+            <div class="js-painted-world PaintedWorld">
                 <div class="Offscreen js-offscreen"></div>
                 <div class="js-canvas"></div>
                 <paint-controls
@@ -171,7 +172,7 @@ var PaintedWorld = Vue.component('painted-world', {
             </div>
             <div class="Log js-log"
                 :class="{
-                     'Log--visible': isLogVisible
+                    'Log--visible': isLogVisible
                 }">
                 <a class="Button Button--close" @click="closeLog">Close</a>
                 <div class="Log-preview js-log-preview"></div>
@@ -187,8 +188,10 @@ var PaintedWorld = Vue.component('painted-world', {
             graphId: generateUUID(),
             ctx: null,
             labelCtx: null,
+            nodes: [],
             // previewCtx: null,
-            canInteract: false,
+            isFirstPainting: true,
+            canInteract: true,
             // images: {
             //     paintMasks: [],
             //     invertedPaintMasks: [],
@@ -213,6 +216,8 @@ var PaintedWorld = Vue.component('painted-world', {
         },
 
         reset: function () {
+            if (!this.ctx)
+                this.setup();
             this.paintOptions = {};
             this.createLayout();
             this.paint();
@@ -282,6 +287,13 @@ var PaintedWorld = Vue.component('painted-world', {
         },
 
         paint: function (repaintPrevious) {
+                console.log('paint');
+            if (!this.isFirstPainting && !this.canInteract) {
+                console.log('nope');
+                this.repaintOnComplete = true;
+                return;
+            }
+            this.isFirstPainting = false;
             var opts = this.paintOptions;
             opts.brushes = this.paintOptions.brushes || [];
 
@@ -306,7 +318,6 @@ var PaintedWorld = Vue.component('painted-world', {
                 hueShift = opts.hueShift != null ? opts.hueShift : hues[Math.floor(Math.random() * hues.length)];
             }
             var canvasTheme = opts.canvasTheme || this.images.canvases[Math.floor(Math.random() * this.images.canvases.length)];
-            var count = nodes.length;
 
             opts.colorIndex = colorIndex;
             opts.colorTheme = colorTheme;
@@ -314,23 +325,27 @@ var PaintedWorld = Vue.component('painted-world', {
             opts.hueShift = hueShift;
             opts.canvasTheme = canvasTheme;
 
-            var onCompletePaint = function () {
-                if (--count <= 0) {
-                    if (this.repaintOnComplete) {
-                        // this.reset();
-                        this.repaintOnComplete = false;
-                        this.paint(true);
-                        return;
-                    }
+            var onCompletePaint = (function () {
+                var count = nodes.length;
+                return function () {
+                    console.log('PAINT PROGRESS', count);
+                    if (--count <= 0) {
+                        if (this.repaintOnComplete) {
+                            // this.reset();
+                            this.repaintOnComplete = false;
+                            this.paint(true);
+                            return;
+                        }
 
-                    this.setInteractionAllowed(true);
+                        this.setInteractionAllowed(true);
 
-                    // save to log
-                    if (!repaintPrevious) {
-                        this.saveToLog();
+                        // save to log
+                        if (!repaintPrevious) {
+                            this.saveToLog();
+                        }
                     }
-                }
-            }.bind(this);
+                }.bind(this);
+            }.bind(this))();
 
             // draw canvas at start so it's not so empty while things process
             this.ctx.drawImage(canvasTheme, 0, 0, this.width, this.height);
@@ -379,7 +394,6 @@ var PaintedWorld = Vue.component('painted-world', {
 
                     }
                 })(d,i).bind(this), repaintPrevious ? 0 : Math.random() * PAINT_TIME);
-                // console.log('loading', Math.floor((i + 1) / nodes.length  * 100));
             }
             this.speckleCanvas(colorTheme, hueShift, repaintPrevious);
         },
@@ -404,7 +418,6 @@ var PaintedWorld = Vue.component('painted-world', {
                         }
                     );
                 }.bind(this), repaintPrevious ? 0 : Math.random() * PAINT_TIME / 2);
-                // console.log('loading', Math.floor((i + 1) / nodes.length  * 100));
             }
         },
 
@@ -583,7 +596,6 @@ var PaintedWorld = Vue.component('painted-world', {
                 height: height,
                 labelImages: this.images.labels,
             });
-
         },
 
         closeLog: function () {
@@ -594,13 +606,9 @@ var PaintedWorld = Vue.component('painted-world', {
         },
     },
     mounted: function () {
-        // var data = this.data;
-        // console.log(data);
-        // this.loadAll();
-
-        this.setup();
-        this.createLayout();
-        this.paint();
+        // this.setup();
+        // this.createLayout();
+        // this.paint();
 
         //https://davidwalsh.name/javascript-debounce-function
         var debounce = function(func, wait, immediate) {
@@ -620,13 +628,13 @@ var PaintedWorld = Vue.component('painted-world', {
 
         d3.select(window).on('resize', debounce(function () {
             if ((document.body.clientWidth >= WIDTH && this.lastWidth >= WIDTH) || this.lastWidth === document.body.clientWidth) return;
-            if (this.canInteract) {
                 this.paint(true);
-            }
-            else {
-                this.repaintOnComplete = true;
-            }
         }, 300).bind(this));
+
+        EventBus.$on(AGGREGATE_EVENT, this.reset);
+
+        this.reset();
+
     },
 });
 

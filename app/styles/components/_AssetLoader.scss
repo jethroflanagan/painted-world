@@ -1,10 +1,16 @@
 .#{$module}AssetLoader {
     display: flex;
-    flex:1;;
+    flex:1;
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    min-height: 100vh;
+    // min-height: 100vh;
     font-family: 'Titillium Web';
     font-size: 2em;
+    width: 900px;
+    height: 800px;
+    background: #efefef;
+    border: 1px solid #ccc;
+        border-radius: 4px;
+
 }

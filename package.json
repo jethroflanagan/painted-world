@@ -5,6 +5,7 @@
   "scripts": {
     "start": "npm run clean;gulp",
     "deploy": "gulp deploy",
+    "deploy-copy": "gulp deploy && cp .dist/scripts/* ~/work/code/app/html-app/app/scripts/vendor/painted-world/ && cp .dist/styles/*.scss ~/work/code/app/html-app/app/styles/vendor/ ",
     "clean": "rm -rf .dist"
   },
   "dependencies": {},

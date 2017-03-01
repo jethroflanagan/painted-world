@@ -1,4 +1,5 @@
-// console.log(aggregate);
+import { EventBus, AGGREGATE_EVENT } from '../event-bus';
+
 let _aggregate = {};
 let _groups = {};
 
@@ -7,22 +8,22 @@ const aggregateService = {
         return {
             // setup like getJSON from jquery
             success: function (cb) {
-                el.addEventListener('data', function (res) {
-                    console.log('data', res);
-                    _.merge(_aggregate, res.detail);
-                    cb();
-                });
-            }
+                console.log('success');
+                this.listen();
+                cb();
+            }.bind(this)
         };
-        // window.addEventListener
-        // return $.getJSON('data/aggregate.json')
-        //     .success((res) => {
-        //         console.log('Loaded',res);
-        //         _.merge(_aggregate, res);
-        //     })
-        //     .error((err) => {
-        //         console.log('Whoops', err);
-        //     });
+    },
+    listen: function (el) {
+        console.log('LISTEN');
+        document.addEventListener('data', function (res) {
+            if (res.detail.transactions.length == 0) {
+                return;
+            }
+            console.log('data', res);
+            _.merge(_aggregate, res.detail);
+            EventBus.$emit(AGGREGATE_EVENT, _aggregate);
+        });
     },
     // data: aggregate,
     get data () {
