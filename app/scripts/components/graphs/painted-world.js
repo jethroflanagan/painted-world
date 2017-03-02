@@ -2,7 +2,7 @@ import { aggregateService } from '../../service/aggregate-service';
 import { Painter } from './painter';
 import { Labeler } from './labeler';
 import { PaintControls } from './paint-controls';
-import { applyCssModule, resolveClasses } from '../../helpers';
+import { applyCssModule, resolveClasses, d3El, domEl, domElAll } from '../../helpers';
 import { EventBus, AGGREGATE_EVENT } from '../../event-bus';
 
 const generateUUID = () => {
@@ -179,6 +179,7 @@ var PaintedWorld = Vue.component('painted-world', {
             </div>
         </div>
     `),
+    replace: true,
     props: [
         'data',
         'images',
@@ -225,7 +226,7 @@ var PaintedWorld = Vue.component('painted-world', {
 
         download: function (e) {
             var dataUrl = this.ctx.canvas.toDataURL('image/png');
-            d3.select('.js-download')
+            d3El('.js-download')
                 .attr({
                     'href': dataUrl,
                 });
@@ -237,7 +238,7 @@ var PaintedWorld = Vue.component('painted-world', {
 
         saveToLog: function () {
             var imgData = this.ctx.canvas.toDataURL('image/png');
-            var container = d3.select('.js-log-preview')
+            var container = d3El('.js-log-preview')
                 .insert('div', ':first-child')
                 .attr({
                     'class': resolveClasses('Preview js-preview'),
@@ -278,7 +279,7 @@ var PaintedWorld = Vue.component('painted-world', {
                 }, 1);
             });
 
-            var previewElList = document.querySelectorAll('.js-preview');
+            var previewElList = domElAll('.js-preview');
             if (previewElList.length > MAX_LOGGED_ITEMS) {
                 var previewEl = previewElList[previewElList.length - 1];
                 container.select('.js-download').on('click', null);
@@ -474,7 +475,7 @@ var PaintedWorld = Vue.component('painted-world', {
             var width = WIDTH;//document.documentElement.clientWidth - margin.left - margin.right;
             var height = HEIGHT;
 
-            var paintedWorld = d3.select('.js-painted-world');
+            var paintedWorld = d3El('.js-painted-world');
             var canvasContainer = paintedWorld.select('.js-canvas');
             var overlayContainer = paintedWorld.select('.js-overlay');
             var offscreenContainer = paintedWorld.select('.js-offscreen');

@@ -18,19 +18,49 @@
         <div class="PaintedWorldApp js-painting">
             <asset-loader>
             </asset-loader>
+            <div class="PaintedWorldApp-imageRef js-image-ref">
+                <img src="images/painted-world/canvases/canvas1.jpg">
+                <img src="images/painted-world/canvases/canvas2.jpg">
+                <img src="images/painted-world/canvases/canvas3.jpg">
+                <img src="images/painted-world/canvases/canvas4.jpg">
+                <img src="images/painted-world/colors/color1.jpg">
+                <img src="images/painted-world/colors/color2.jpg">
+                <img src="images/painted-world/colors/color3.jpg">
+                <img src="images/painted-world/label.png">
+                <img src="images/painted-world/brushes/outline01.png">
+                <img src="images/painted-world/brushes/outline02.png">
+                <img src="images/painted-world/brushes/outline03.png">
+                <img src="images/painted-world/brushes/outline04.png">
+                <img src="images/painted-world/brushes/outline05.png">
+                <img src="images/painted-world/brushes/outline06.png">
+                <img src="images/painted-world/brushes/outline07.png">
+                <img src="images/painted-world/brushes/outline08.png">
+                <img src="images/painted-world/brushes/outline09.png">
+                <img src="images/painted-world/brushes/outline10.png">
+                <img src="images/painted-world/brushes/outline11.png">
+                <img src="images/painted-world/brushes/outline12.png">
+                <img src="images/painted-world/brushes/outline13.png">
+                <img src="images/painted-world/brushes/outline14.png">
+                <img src="images/painted-world/brushes/outline15.png">
+                <img src="images/painted-world/brushes/outline16.png">
+            </div>
         </div>
         <script src="scripts/painted-world-vendor.js"></script>
         <script src="scripts/painted-world-app.js"></script>
 
         <script>
+            window.test = function () {
+                createPaintedWorld();
+
+                setTimeout(()=> {
+                    console.log(domEl('.js-painting'))
+                    document.dispatchEvent(new CustomEvent('component-painted-world-data', { detail: window.DATA, }), 2000)
+                });
+            }
             d3.json('data/aggregate.json', function (data) {
                 window.DATA = data;
                 setTimeout(() => {
-                document//.querySelector('.js-painting')
-                    .dispatchEvent(new CustomEvent('data', {
-                        detail: data,
-                    })
-                );
+                    window.test();
                 }, 1);
             });
         </script>

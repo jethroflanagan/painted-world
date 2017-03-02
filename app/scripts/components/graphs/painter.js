@@ -215,7 +215,6 @@ function Painter (opts) {
 
         saveLayer: function (ctx, onSaved) {
             var layer = document.createElement('img');
-            // document.querySelector('body').appendChild(layer);
             var deferred = (function (resolve, reject) {
                 layer.onload = function () {
                     resolve(layer);

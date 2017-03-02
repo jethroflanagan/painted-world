@@ -14,7 +14,7 @@ const aggregateService = {
         };
     },
     listen: function (el) {
-        document.addEventListener('data', function (res) {
+        el.addEventListener('component-painted-world-data', function (res) {
             if (res.detail.transactions.length == 0) {
                 return;
             }

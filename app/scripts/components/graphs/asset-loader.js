@@ -1,23 +1,26 @@
 import './painted-world';
-import { applyCssModule } from '../../helpers';
 import { EventBus, AGGREGATE_EVENT } from '../../event-bus';
+import { applyCssModule, d3El, domEl, domElAll } from '../../helpers';
 
 var AssetLoader = Vue.component('asset-loader', {
     // inline style needs to be forced for text decoration to handle :visited for some reason
     template: applyCssModule(`
         <div>
-            <div class="AssetLoader" v-if="!isLoaded && percentLoaded < 100">
-                <div>Loading... </div>
-                <div>{{percentLoaded}}%</div>
-            </div>
-            <div class="AssetLoader" v-if="!isLoaded && percentLoaded === 100">
-                <div>Set your filter to make a painting</div>
+            <div class="AssetLoader" v-if="!isLoaded">
+                <div class="AssetLoader-content" v-if="percentLoaded < 100">
+                    <div>Loading... </div>
+                    <div>{{percentLoaded}}%</div>
+                </div>
+                <div class="AssetLoader-content" v-if="percentLoaded === 100">
+                    <div>Set your filter to make a painting</div>
+                </div>
             </div>
             <painted-world v-if="isLoaded"
-                :images="images"
+            :images="images"
             ></painted-world>
         </div>
     `),
+    replace: true,
     props: [
     ],
     data() {
@@ -49,7 +52,7 @@ var AssetLoader = Vue.component('asset-loader', {
                 }.bind(this), false);
             }).bind(this);
             var promise = new Promise(deferred);
-            img.src = './images/painted-world/' + path;
+            img.src = path;
             return promise;
         },
 
@@ -67,45 +70,49 @@ var AssetLoader = Vue.component('asset-loader', {
         },
 
         loadAll: function () {
+            // need to get references to the rev'd images from the webapp. Paths are solved automatically with those refs
+            var imageRefList = _.map(domElAll('.js-image-ref img'), (img) => {
+                return img.src;
+            });
             var imagesToLoad = [
                 // canvases
-                'canvases/canvas1.jpg',
-                'canvases/canvas2.jpg',
-                'canvases/canvas3.jpg',
-                'canvases/canvas4.jpg',
-
+                'canvas1.jpg',
+                'canvas2.jpg',
+                'canvas3.jpg',
+                'canvas4.jpg',
                 // themes
-                'colors/color1.jpg',
-                'colors/color2.jpg',
-                'colors/color3.jpg',
-                // 'colors/color4.jpg'), // pure flat color for debg
-
-                // labels
-                // 'label/label1.png',
-                // 'label/label2.png',
-                // 'label/label3.png',
-                // 'label/label4.png',
-                // 'label/label5.png',
+                'color1.jpg',
+                'color2.jpg',
+                'color3.jpg',
                 'label.png',
-
                 // brushes
-                'brushes/outline01.png',
-                'brushes/outline02.png',
-                'brushes/outline03.png',
-                'brushes/outline04.png',
-                'brushes/outline05.png',
-                'brushes/outline06.png',
-                'brushes/outline07.png',
-                'brushes/outline08.png',
-                'brushes/outline09.png',
-                'brushes/outline10.png',
-                'brushes/outline11.png',
-                'brushes/outline12.png',
-                'brushes/outline13.png',
-                'brushes/outline14.png',
-                'brushes/outline15.png',
-                'brushes/outline16.png',
-            ];
+                'outline01.png',
+                'outline02.png',
+                'outline03.png',
+                'outline04.png',
+                'outline05.png',
+                'outline06.png',
+                'outline07.png',
+                'outline08.png',
+                'outline09.png',
+                'outline10.png',
+                'outline11.png',
+                'outline12.png',
+                'outline13.png',
+                'outline14.png',
+                'outline15.png',
+                'outline16.png',
+            ].map((path) => {
+                // handle revving of assets
+                var name = path.split('/').pop();
+                for (var i = 0; i < imageRefList.length; i++) {
+                    if (imageRefList[i].indexOf(name) === -1) continue;
+                    return imageRefList[i];
+                }
+                return path;
+            });
+            // remove el so images aren't trying to load.
+            domEl('.js-image-ref').remove();
 
             var onProgress = this.trackProgress(imagesToLoad.length, this.onUpdateMain).bind(this);
 

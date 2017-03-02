@@ -32,3 +32,15 @@ export function applyCssModule (template) {
     );
     return modularized;
 }
+
+// namespaced selection
+export const namespace = '.js-painting';
+export function domEl(ref) {
+    return document.querySelector(namespace + ' ' + ref);
+}
+export function domElAll(ref) {
+    return document.querySelectorAll(namespace + ' ' + ref);
+}
+export function d3El(ref) {
+    return d3.select(namespace + ' ' + ref);
+}

@@ -1,4 +1,4 @@
-import { applyCssModule } from '../../helpers';
+import { applyCssModule, d3El, domEl, domElAll } from '../../helpers';
 
 var PaintControls = Vue.component('paint-controls', {
     // inline style needs to be forced for text decoration to handle :visited for some reason
@@ -68,9 +68,9 @@ var PaintControls = Vue.component('paint-controls', {
     },
     mounted: function () {
         console.log('MOUNTED');
-        this.resetBtn = document.querySelector('.js-resetBtn');
-        this.downloadBtn = document.querySelector('.js-downloadBtn');
-        // this.logBtn = document.querySelector('.js-logBtn');
+        this.resetBtn = domEl('.js-resetBtn');
+        this.downloadBtn = domEl('.js-downloadBtn');
+        // this.logBtn = domEl('.js-logBtn');
 
         this.resetBtn.addEventListener('mousedown', this.runCb(this.reset));
         this.downloadBtn.addEventListener('mousedown', this.runCb(this.showLog));

@@ -12,5 +12,7 @@
         "**/node_modules": true,
         "**/bower_components": true,
         "app/vendor": true
-    }
+    },
+    "editor.formatOnPaste": true,
+    "editor.minimap.enabled": true
 }

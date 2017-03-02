@@ -5,16 +5,20 @@ $font: 'Titillium Web';
 .PaintedWorldApp {
     margin: 0 auto;
     text-align: center;
-    display: flex;
+    // display: flex;
     justify-content: center;
+    width: 100%;
+    &-imageRef {
+        display: none;
+    }
 }
 .#{$module}Painting {
 
     border: 1px solid #ccc;
     position: relative;
     user-select: none;
-    width: 100vw;
-    max-width: 900px;
+    width: 900px;
+    max-width: 100%;
     border-radius: 4px;
     overflow: hidden;
     display: inline-block;
@@ -363,7 +367,7 @@ a.#{$module}Button {
             display: none;
         }
         left: 100px;
-            
+
     }
 }
 
