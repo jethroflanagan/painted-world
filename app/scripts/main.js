@@ -5,7 +5,7 @@ import './components/graphs/asset-loader';
 
 
 window.createPaintedWorld = function () {
-    var el = document;//.querySelector('.js-painting');
+    var el = document;//.querySelector('namespace');
     aggregateService.listen(el)
     new Vue({
         el: namespace,

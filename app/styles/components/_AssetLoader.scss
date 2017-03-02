@@ -12,8 +12,6 @@
     width: 100%;
     height: 800px;
     background: #efefef;
-    border: 1px solid #ccc;
-    border-radius: 4px;
     &-content {
         display: flex;
         flex: 1;
@@ -21,5 +19,16 @@
         align-items: center;
         flex-direction: column;
         height: 100%;
+        opacity: 0;
+        animation: show 1s ease-out 0.5s;
+    }
+
+    @keyframes show {
+        0% {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
     }
 }

@@ -12,7 +12,7 @@ var AssetLoader = Vue.component('asset-loader', {
                     <div>{{percentLoaded}}%</div>
                 </div>
                 <div class="AssetLoader-content" v-if="percentLoaded === 100">
-                    <div>Set your filter to make a painting</div>
+                    <div>No transactions...</div>
                 </div>
             </div>
             <painted-world v-if="isLoaded"
