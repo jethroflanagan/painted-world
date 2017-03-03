@@ -18,7 +18,8 @@ const aggregateService = {
             if (res.detail.transactions.length == 0) {
                 return;
             }
-            _.merge(_aggregate, res.detail);
+            _aggregate = res.detail;
+            console.log('loaded', _aggregate)
             EventBus.$emit(AGGREGATE_EVENT, _aggregate);
         });
     },

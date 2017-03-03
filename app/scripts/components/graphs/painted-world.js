@@ -329,9 +329,13 @@ var PaintedWorld = Vue.component('painted-world', {
                 return function () {
                     if (--count <= 0) {
                         if (this.repaintOnComplete) {
-                            // this.reset();
                             this.canInteract = true;
                             this.repaintOnComplete = false;
+                            if (this.resetOnComplete) {
+                                this.resetOnComplete = false;
+                                this.reset();
+                                return;
+                            }
                             this.paint(true);
                             return;
                         }
@@ -392,7 +396,7 @@ var PaintedWorld = Vue.component('painted-world', {
                         });
 
                     }
-                })(d,i).bind(this), repaintPrevious ? 0 : Math.random() * PAINT_TIME);
+                })(d,i).bind(this), repaintPrevious ? 0 : Math.min(300, Math.random() * PAINT_TIME));
             }
             this.speckleCanvas(colorTheme, hueShift, repaintPrevious);
         },
@@ -635,6 +639,7 @@ var PaintedWorld = Vue.component('painted-world', {
                 this.reset();
             }
             else {
+                this.resetOnComplete = true;
                 this.repaintOnComplete = true;
             }
         });
