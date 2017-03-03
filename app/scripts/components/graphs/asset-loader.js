@@ -6,7 +6,7 @@ var AssetLoader = Vue.component('asset-loader', {
     // inline style needs to be forced for text decoration to handle :visited for some reason
     template: applyCssModule(`
         <div>
-            <div class="AssetLoader" v-if="!isLoaded">
+            <div class="AssetLoader" v-if="!(areAssetsReady && isDataReady)">
                 <div class="AssetLoader-content" v-if="percentLoaded < 100">
                     <div>Loading... </div>
                     <div>{{percentLoaded}}%</div>
@@ -15,7 +15,7 @@ var AssetLoader = Vue.component('asset-loader', {
                     <div>No transactions...</div>
                 </div>
             </div>
-            <painted-world v-if="isLoaded"
+            <painted-world v-if="(areAssetsReady && isDataReady)"
             :images="images"
             ></painted-world>
         </div>
@@ -25,7 +25,8 @@ var AssetLoader = Vue.component('asset-loader', {
     ],
     data() {
         return {
-            isLoaded: false,
+            areAssetsReady: false, // images loaded
+            isDataReady: false, // aggregate loaded
             percentLoaded: 0,
             images: {
                 paintMasks: [],
@@ -165,16 +166,12 @@ var AssetLoader = Vue.component('asset-loader', {
             return promise;
         },
         onComplete: function () {
-            // this.isLoaded = true;
+            this.areAssetsReady = true;
         },
     },
     mounted: function () {
         EventBus.$on(AGGREGATE_EVENT, (e) => {
-
-            // sigh
-            setTimeout(() => {
-                this.isLoaded = true;
-            }, 300);
+            this.isDataReady = true;
         });
 
         this.loadAll();

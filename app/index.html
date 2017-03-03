@@ -49,18 +49,15 @@
         <script src="scripts/painted-world-app.js"></script>
 
         <script>
+            createPaintedWorld();
             window.test = function () {
-                createPaintedWorld();
-
-                setTimeout(()=> {
-                    console.log(domEl('.js-painting'))
-                    document.dispatchEvent(new CustomEvent('component-painted-world-data', { detail: window.DATA, }), 2000)
-                });
+                document.dispatchEvent(new CustomEvent('component-painted-world-data', { detail: window.DATA, }), 2000)
             }
             d3.json('data/aggregate.json', function (data) {
                 window.DATA = data;
                 setTimeout(() => {
                     window.test();
+                    // document.dispatchEvent(new CustomEvent('component-painted-world-data', { detail: window.DATA, }), 2000)
                 }, 1);
             });
         </script>
