@@ -429,6 +429,7 @@ var PaintedWorld = Vue.component('painted-world', {
             var PADDING = 80;
             var width = this.width;
             var height = this.height;
+            var isGrouped = this.isGrouped;
             var groups = organiseCategories(aggregateService.data, this.isGrouped);
             var data = {
                 name : 'root',
@@ -437,7 +438,9 @@ var PaintedWorld = Vue.component('painted-world', {
                     node.name = group.name;
                     node.size = group.total;
                     node.percent = group.percent;
-                    node.contains = group.contains;
+                    if (isGrouped) {
+                        node.contains = group.contains;
+                    }
                     node.offset = {
                         angle: Math.random() * Math.PI * 2,
                     };
