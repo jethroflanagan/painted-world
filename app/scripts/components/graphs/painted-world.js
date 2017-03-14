@@ -146,7 +146,7 @@ function shuffle (array) {
     }
 }
 var INTERACTION_OFFSET_Y = 70;
-var PAINT_TIME = 2000;
+var PAINT_TIME = 1000;
 var MAX_LOGGED_ITEMS = 16;
 var WIDTH = 900;
 var HEIGHT = 800;
@@ -396,7 +396,7 @@ var PaintedWorld = Vue.component('painted-world', {
                         });
 
                     }
-                })(d,i).bind(this), repaintPrevious ? 0 : Math.min(300, Math.random() * PAINT_TIME));
+                })(d,i).bind(this), repaintPrevious ? 0 : Math.random() * PAINT_TIME);
             }
             this.speckleCanvas(colorTheme, hueShift, repaintPrevious);
         },
